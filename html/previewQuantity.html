@@ -18,13 +18,80 @@
 			.page {
 				display: block;
 			}
-			.el-card__body, .el-main {
-			    padding: 10px!important;
+
+			.el-card__body,
+			.el-main {
+				padding: 10px !important;
+			}
+
+			.lowInventoryList {
+			}
+
+			.lowInventoryItem {
+				border-radius: 5px;
+			}
+
+			.lowWrap {
+				padding: 10px;
+				text-align: center;
+				height: 100px;
+				margin: 5px;
+			}
+
+			.name {
+				color: #333;
+				margin-bottom: 10px;
+			}
+
+			.countList {}
+
+			.countItem {
+				width: 35px;
+				padding: 5px;
+			}
+
+			.countItem+.countItem {
+				margin-left: 1px;
+			}
+
+			.countLabel {
+				font-size: 25px;
+			}
+
+			.countCount {
+				color: #666;
+				font-size: 12px;
+			}
+
+			.count {
+				font-size: 30px;
+				margin-top: 15px;
 			}
 		</style>
 	</head>
 	<body>
 		<div id="app" class="none" :class="loaded?'page':''">
+			<el-card class="box-card">
+				<div slot="header" class="clearfix">
+					<span>低库存预警</span>
+				</div>
+				<div class="lowInventoryList flexWrap" v-if="lowInventoryList.length">
+					<div class="lowInventoryItem" v-for="(item,index) in lowInventoryList
+" :key="index">
+						<div class="lowWrap lightgrayBack">
+							<div class="name">{{item.name}}</div>
+							<div class="countList flexCenter" v-if="!item.isOne">
+								<div class="countItem" v-for="(cIt,ci) in item.lowData" :key="item.name+cIt">
+									<div class="countLabel" :class="getColor(cIt,item.lowCount)">{{cIt}}</div>
+									<div class="countCount">{{ci}}</div>
+								</div>
+							</div>
+							<div class="count" :class="getColor(item.lowData.default,item.lowCount)" v-else>
+								{{item.lowData.default}}</div>
+						</div>
+					</div>
+				</div>
+			</el-card>
 			<el-row>
 				<el-col :span="14">
 					<el-card class="box-card">
@@ -98,6 +165,7 @@
 						tableData3: [],
 						clothesList: [],
 						itemInventoryList: [],
+						lowInventoryList: [],
 						sizeList: dict.sizeList,
 						lightList: [
 							'高亮', '普亮', '中亮'
@@ -113,6 +181,21 @@
 				},
 				computed: {},
 				methods: {
+					getColor(count, low) {
+						if ((low / count) >= 2) return 'darkred'
+						return 'orange'
+					},
+					getCount(item) {
+						if (Object.keys(item).includes('default')) {
+							return item.default
+						} else {
+							let c = Object.entries(item)
+								.map(([key, value]) => `${key}-${value}`)
+								.join('/');
+							console.log('c- ----', c)
+							return c
+						}
+					},
 					objectSpanMethod1({
 						rowIndex,
 						columnIndex
@@ -161,11 +244,32 @@
 					getItemCount() {
 						this.itemInventoryList = []
 						get('inventory/list', {
-							// productItemId: this.itemInfo.id
 						}).then(res => {
 							this.itemInventoryList = res.data
 							this.setData()
+							this.checkLow()
 						}).catch(err => {});
+					},
+					checkLow() {
+						let cl = this.clothesList.map(m => m.itemList).flat()
+						let il = this.itemInventoryList
+						let list = []
+						let noColor = ['大红', '金黄', '橘红', '宝蓝']
+						for (let it of cl) {
+							it.lowData = {}
+							for (let jt of il) {
+								if (it.id == jt.productItemId && it.lowCount && jt.quantity <= it.lowCount &&
+									(!noColor.includes(it.colorName) || jt.sizeStr == 'XL' || !jt.sizeStr)) {
+									let n = jt.sizeStr || 'default'
+									it.lowData[n] = it.lowData[n] ? (it.lowData[n] + jt.quantity) : jt
+										.quantity
+									it.isOne = n == 'default'
+								}
+							}
+							list.push(it)
+						}
+						let newList = list.filter(f => Object.keys(f.lowData).length > 0)
+						this.lowInventoryList = newList
 					},
 					setData() {
 						let cl = this.clothesList.filter(f => f.count > 0)
@@ -174,6 +278,7 @@
 						let td1 = [],
 							td2 = [],
 							td3 = [],
+							lowInventoryList = [],
 							itemLen1 = {},
 							itemLen2 = {},
 							itemLen3 = {}
@@ -227,7 +332,6 @@
 						this.itemLen1 = itemLen1
 						this.itemLen2 = itemLen2
 						this.itemLen3 = itemLen3
-						console.log(itemLen1, itemLen2, itemLen3)
 					}
 
 				}
