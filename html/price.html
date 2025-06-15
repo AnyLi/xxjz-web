@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>价格表</title>
+		<link rel="icon" href="../favicon.ico" type="image/x-icon">
+		<style>
+			* {
+				padding: 0;
+				margin: 0;
+				box-sizing: border-box;
+			}
+
+			.none {
+				display: none;
+			}
+
+			.page {
+				display: block;
+			}
+
+			.el-card__body,
+			.el-main {
+				padding: 10px !important;
+			}
+
+			.lowInventoryList {}
+
+			.lowInventoryItem {
+				border-radius: 5px;
+			}
+
+			.lowWrap {
+				padding: 10px;
+				text-align: center;
+				height: 100px;
+				margin: 5px;
+			}
+
+			.name {
+				color: #333;
+				margin-bottom: 10px;
+			}
+
+			.countList {}
+
+			.countItem {
+				width: 35px;
+				padding: 5px;
+			}
+
+			.countItem+.countItem {
+				margin-left: 1px;
+			}
+
+			.countLabel {
+				font-size: 25px;
+			}
+
+			.countCount {
+				color: #666;
+				font-size: 12px;
+			}
+
+			.count {
+				font-size: 30px;
+				margin-top: 15px;
+			}
+
+			input {
+				border: none;
+				padding: 0 10px;
+				width: 100%;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app" class="none" :class="loaded?'page':''">
+
+			<el-card class="box-card">
+				<div slot="header" class="clearfix">
+					<span>价格表</span>
+					<el-button style="float: right; padding: 3px 0" type="text" @click="submit">确认修改</el-button>
+				</div>
+				<el-row>
+					<el-col :span="12">
+						<el-card class="box-card">
+							<el-table :data="tableData1" border style="width: 100%"
+								@selection-change="handleSelectionChange">
+								<el-table-column align="center" prop="id" width="55">
+								</el-table-column>
+								<el-table-column align="center" prop="clotheMerchantId" label="商家" width="100"
+									:formatter="formatName2">
+								</el-table-column>
+								<el-table-column align="center" prop="productId" label="产品名称" width="100"
+									:formatter="formatName">
+								</el-table-column>
+								<el-table-column align="center" prop="colorName" label="颜色名称">
+								</el-table-column>
+								<el-table-column align="center" prop="styleName" label="款式名称">
+								</el-table-column>
+								<el-table-column align="center" prop="brightnessStr" label="亮度等级">
+								</el-table-column>
+								<el-table-column align="center" prop="sizeStr" label="尺码" width="80">
+								</el-table-column>
+								<el-table-column align="center" prop="price" label="价格（元）" width="120"
+									:formatter="formatPrice">
+									<template slot-scope="scope">
+										<input type="number" class="lightgrayBack" v-model="scope.row.price">
+									</template>
+								</el-table-column>
+								<el-table-column align="center" prop="updateTime" label="更新时间" width="170">
+								</el-table-column>
+							</el-table>
+						</el-card>
+					</el-col>
+
+					<el-col :span="12">
+						<el-card class="box-card">
+							<el-table :data="tableData2" border style="width: 100%"
+								@selection-change="handleSelectionChange">
+								<el-table-column align="center" type="index" width="55">
+								</el-table-column>
+								<el-table-column align="center" prop="clotheMerchantId" label="商家" width="100"
+									:formatter="formatName2">
+								</el-table-column>
+								<el-table-column align="center" prop="productId" label="产品名称" width="100"
+									:formatter="formatName">
+								</el-table-column>
+								<el-table-column align="center" prop="colorName" label="颜色名称">
+								</el-table-column>
+								<el-table-column align="center" prop="styleName" label="款式名称">
+								</el-table-column>
+								<el-table-column align="center" prop="brightnessStr" label="亮度等级">
+								</el-table-column>
+								<el-table-column align="center" prop="sizeStr" label="尺码" width="80">
+								</el-table-column>
+								<el-table-column align="center" prop="price" label="价格（元）" width="120"
+									:formatter="formatPrice">
+									<template slot-scope="scope">
+										<input type="number" class="lightgrayBack" v-model="scope.row.price">
+									</template>
+								</el-table-column>
+								<el-table-column align="center" prop="updateTime" label="更新时间" width="170">
+								</el-table-column>
+							</el-table>
+						</el-card>
+					</el-col>
+				</el-row>
+			</el-card>
+		</div>
+	</body>
+	<script src="../js/main.js"></script>
+	<script>
+		setTimeout(() => {
+			new Vue({
+				el: '#app',
+				data: function() {
+					return {
+						loaded: false,
+						tableData: [],
+						tableData1: [],
+						tableData2: [],
+						productList: [],
+						merchantList: [],
+					}
+				},
+				mounted() {
+					this.loaded = true
+					// this.getProductList()
+					// this.getMerchantList()
+					Promise.all([this.getProductList(), this.getMerchantList()]).then(res => {
+						this.getList()
+					})
+				},
+				computed: {},
+				methods: {
+					submit() {
+						post('priceSetting/batchSaveOrUpdate',{
+							priceList:[...this.tableData1,...this.tableData2]
+						}).then(res => {
+							vant.Toast('更新成功')
+						}).catch(err => {});
+					},
+					getList() {
+						get('priceSetting/list').then(res => {
+							this.tableData = res.data
+							this.tableData1 = this.tableData.filter(f => f.clotheMerchantId == 13)
+							this.tableData2 = this.tableData.filter(f => f.clotheMerchantId != 13)
+						}).catch(err => {});
+					},
+					getProductList() {
+						get('product/list').then(res => {
+							this.productList = res.data
+						}).catch(err => {});
+					},
+					getMerchantList() {
+						get('merchant/list').then(res => {
+							this.merchantList = res.data
+						}).catch(err => {});
+					},
+					formatPrice(row, column, cellValue) {
+						return '¥' + cellValue.toFixed(2)
+					},
+					formatName(row, column, cellValue) {
+						return this.productList.find(f => f.id == cellValue)?.name
+					},
+					formatName2(row, column, cellValue) {
+						return this.merchantList.find(f => f.id == cellValue)?.name
+					},
+					handleEdit(index, row) {
+						console.log(index, row)
+					},
+					handleDelete(index, row) {
+						console.log(index, row)
+					},
+					handleSelectionChange(val) {
+						this.multipleSelection = val
+					}
+
+				}
+			})
+		}, 1500)
+	</script>
+</html>
