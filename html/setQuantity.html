@@ -549,7 +549,7 @@
 					},
 					getList(e, isSave) {
 						get('product/list').then(res => {
-							this.clothesList = res.data
+							this.clothesList = res.data?.filter(f=>f.name != '帽子')
 							this.getInfo(e, isSave)
 						}).catch(err => {});
 
