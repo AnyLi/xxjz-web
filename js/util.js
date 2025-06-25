@@ -1,4 +1,3 @@
-
 const formatTime = (date, hasNoS) => {
 	const year = date.getFullYear()
 	const month = date.getMonth() + 1
@@ -69,7 +68,8 @@ const toHump = function(name) {
 //--身份证号码验证-支持新的带x身份证
 const isCardID = function(id) {
 	// 1 "验证通过!", 0 //校验不通过
-	var format = /^(([1][1-5])|([2][1-3])|([3][1-7])|([4][1-6])|([5][0-4])|([6][1-5])|([7][1])|([8][1-2]))\d{4}(([1][9]\d{2})|([2]\d{3}))(([0][1-9])|([1][0-2]))(([0][1-9])|([1-2][0-9])|([3][0-1]))\d{3}[0-9xX]$/;
+	var format =
+		/^(([1][1-5])|([2][1-3])|([3][1-7])|([4][1-6])|([5][0-4])|([6][1-5])|([7][1])|([8][1-2]))\d{4}(([1][9]\d{2})|([2]\d{3}))(([0][1-9])|([1][0-2]))(([0][1-9])|([1-2][0-9])|([3][0-1]))\d{3}[0-9xX]$/;
 	//号码规则校验
 	if (!format.test(id)) {
 		return '身份证号码不合规'
@@ -123,6 +123,15 @@ const getUuid = function uuid() {
 
 }
 
+const getUrlParam = function(name) {
+	const regex = new RegExp(`[?&]${name}=([^&#]*)`);
+	const result = regex.exec(window.location.href);
+	return result ? decodeURIComponent(result[1]) : null;
+}
+let sign = getUrlParam('sign')
+if (sign) {
+	sessionStorage.setItem('sign', sign)
+}
 
 // module.exports = {
 // 	formatTime,
