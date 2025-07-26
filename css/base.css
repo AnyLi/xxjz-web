@@ -21,19 +21,19 @@ swiper {
 }
 
 .main {
-	color: ##409EFF
+	color: #409EFF
 }
 
 .mainBorder {
-	border-color: ##409EFF !important;
+	border-color: #409EFF !important;
 }
 
 .mainBack {
-	background: ##409EFF;
+	background: #409EFF;
 }
 
 .mainLightBack {
-	background: ##409EFF22;
+	background: #409EFF22;
 }
 
 
@@ -99,6 +99,21 @@ swiper {
 
 .greenLightBack {
 	background: rgba(7, 189, 8, 0.1) !important;
+}
+.lightgreen {
+	color: #A3CF3C !important
+}
+
+.lightgreenBorder {
+	border-color: #A3CF3C !important;
+}
+
+.lightgreenBack {
+	background: #A3CF3C !important;
+}
+
+.lightgreenLightBack {
+	background: rgba(163, 207, 60, 0.1) !important;
 }
 
 .yellow {
