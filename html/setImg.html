@@ -408,6 +408,15 @@
 				position: relative;
 			}
 
+			.backImg {
+				position: absolute;
+				top: 0;
+				left: 0;
+				z-index: 10;
+				width: 100%;
+				height: 100%;
+			}
+
 			.productImgName {
 				font-size: 3vw;
 			}
@@ -607,6 +616,14 @@
 				</van-radio-group>
 			</div>
 			<div class="formItem flexBtCenter">
+				<div class="name">是否显示规格自定义文字</div>
+				<van-switch v-model="hasDIYText" />
+			</div>
+			<div class="formItem flexBtCenter">
+				<div class="name">是否使用店铺自带背景</div>
+				<van-switch v-model="useShopBack" />
+			</div>
+			<div class="formItem flexBtCenter">
 				<div class="name">显示规格名称</div>
 				<van-switch v-model="showSku" />
 			</div>
@@ -647,6 +664,7 @@
 									:key="index+'-'+i+'-'+ti" v-html="getText(it)">
 								</div>
 							</div>
+							<img :src="shopInfo.backImg" v-if="useShopBack &&shopInfo.backImg" class="backImg" alt="">
 							<div class="skuInfoWrap flexCenter" v-if="showSku">
 								<div class="shopInfo flexYCenter" :class="showColor+'Back'">
 									<img :src="shopInfo.avatar" class="face" alt="">
@@ -659,7 +677,7 @@
 									<div class="skuText" :class="skuStyle ==1 && !isSkuRight?(showColor+'Border'):''">
 										<span class="skuName"
 											:class="skuStyle ==1 && !isSkuRight?[showColor+'LightBack']:[]">{{item.colorName||''}}{{item.styleName||''}}</span>
-										<span class="skuName"
+										<span class="skuName" v-if="hasDIYText"
 											:class="skuStyle ==1?(showColor+'Back white'):skuStyle ==2?showColor:'bd whiteBorder white'">{{i}}</span>
 									</div>
 								</div>
@@ -732,7 +750,8 @@
 					showColor: 'blue',
 					giftImg: '',
 					hasGift: false,
-
+					useShopBack: false,
+					hasDIYText: true,
 					colorList: [{
 							label: '蓝色',
 							color: 'blue',
@@ -884,14 +903,14 @@
 					getInfo() {
 						get('dictList/listInfo').then(res => {
 							let data = res.data || {}
-							for(let i in data){
+							for (let i in data) {
 								dict[i] = JSON.parse(data[i].itemValue)
 							}
 							this.setData()
 							this.getList()
 						})
 					},
-					setData(){
+					setData() {
 						this.textList = dict.textList
 						this.textObjList = dict.textObjList
 						this.storeTypeStr = dict.storeTypeStr
