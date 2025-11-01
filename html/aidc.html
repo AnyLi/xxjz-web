@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<title>移动端文本识别工具</title>
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				min-height: 100vh;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				padding: 16px;
+			}
+
+			.container {
+				width: 375px;
+				max-width: 100%;
+				background: white;
+				border-radius: 20px;
+				box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+				overflow: hidden;
+				position: relative;
+			}
+
+			.header {
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				color: white;
+				padding: 24px 20px;
+				text-align: center;
+			}
+
+			.header h1 {
+				font-size: 20px;
+				font-weight: 600;
+				margin-bottom: 8px;
+			}
+
+			.header p {
+				font-size: 14px;
+				opacity: 0.9;
+			}
+
+			.content {
+				padding: 24px 20px;
+			}
+
+			.status-message {
+				padding: 12px 16px;
+				border-radius: 10px;
+				margin-bottom: 20px;
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				font-size: 14px;
+				/* transition: all 0.3s ease; */
+			}
+
+			.status-info {
+				background: #e8f4fd;
+				color: #1971c2;
+				border: 1px solid #a5d8ff;
+			}
+
+			.status-success {
+				background: #d3f9d8;
+				color: #2b8a3e;
+				border: 1px solid #69db7c;
+			}
+
+			.status-error {
+				background: #ffe3e3;
+				color: #c92a2a;
+				border: 1px solid #ffa8a8;
+			}
+
+			.textarea-container {
+				position: relative;
+				margin-bottom: 24px;
+			}
+
+			.textarea {
+				width: 100%;
+				height: 180px;
+				padding: 16px;
+				border: 2px solid #e1e5e9;
+				border-radius: 12px;
+				font-size: 16px;
+				line-height: 1.5;
+				resize: none;
+				transition: all 0.3s ease;
+				font-family: inherit;
+				background: #f8f9fa;
+			}
+
+			.textarea:focus {
+				outline: none;
+				border-color: #667eea;
+				box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+				background: white;
+			}
+
+			.button-group {
+				display: flex;
+				gap: 7px;
+				justify-content: flex-end;
+				flex-wrap: wrap;
+				margin-bottom: 24px;
+			}
+
+			.btn {
+				padding: 7px 10px;
+				border: none;
+				border-radius: 10px;
+				font-size: 14px;
+				font-weight: 500;
+				cursor: pointer;
+				transition: all 0.3s ease;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				min-width: 70px;
+				justify-content: center;
+			}
+
+			.btnBot {
+				padding: 15px;
+			}
+
+			.btn-primary {
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				color: white;
+			}
+
+			.btn-secondary {
+				background: #f8f9fa;
+				color: #495057;
+				border: 1px solid #dee2e6;
+			}
+
+			.btn:disabled {
+				opacity: 0.6;
+				cursor: not-allowed;
+				transform: none !important;
+			}
+
+			.btn:not(:disabled):hover {
+				transform: translateY(-2px);
+				box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+			}
+
+			.theme-section {
+				margin-top: 20px;
+				padding-top: 20px;
+				border-top: 1px solid #e9ecef;
+			}
+
+			.theme-title {
+				font-size: 16px;
+				color: #495057;
+				margin-bottom: 16px;
+				font-weight: 600;
+			}
+
+			.theme-options {
+				display: flex;
+				gap: 12px;
+				margin-bottom: 20px;
+			}
+
+			.theme-option {
+				flex: 1;
+				padding: 12px;
+				border: 2px solid #e1e5e9;
+				border-radius: 10px;
+				text-align: center;
+				cursor: pointer;
+				/* transition: all 0.3s ease; */
+				background: #f8f9fa;
+			}
+
+			.theme-option.active {
+				border-color: #667eea;
+				background: white;
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+			}
+
+			.theme-color {
+				width: 40px;
+				height: 40px;
+				border-radius: 8px;
+				margin: 0 auto 8px;
+			}
+
+			.theme-black .theme-color {
+				background: linear-gradient(135deg, #2d3748 0%, #000000 100%);
+			}
+
+			.theme-yellow .theme-color {
+				background: linear-gradient(135deg, #B6F32E 0%, #9BD210 100%);
+			}
+
+			.theme-orange .theme-color {
+				background: linear-gradient(135deg, #FC3D1F 0%, #fb923c 100%);
+			}
+
+			.theme-name {
+				font-size: 12px;
+				color: #495057;
+				font-weight: 500;
+			}
+
+			.theme-option.active .theme-name {
+				color: #667eea;
+			}
+
+			.theme-image {
+				width: 100%;
+				/* height: 200px; */
+				border-radius: 12px;
+				overflow: hidden;
+				background: #f8f9fa;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				position: relative;
+			}
+
+			.theme-image img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				/* transition: all 0.5s ease; */
+			}
+
+			.textList {}
+
+			.textItem {
+				position: absolute;
+				z-index: 100;
+				font-weight: bold;
+				text-align: center;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			/* 黑葫芦前上标 */
+			.textItem1 {
+				top: 145px;
+				left: 33px;
+				width: 102px;
+				height: 16px;
+				/* line-height: 16px; */
+				font-size: 12px;
+
+			}
+
+			.textItem19 {
+				font-size: 11px;
+				transform: scale(0.9, 1);
+			}
+
+			.textItem110 {
+				font-size: 10px;
+				transform: scale(1, 1.1);
+			}
+
+			.textItem111 {
+				font-size: 9px;
+				transform: scale(1, 1.2);
+			}
+
+			.textItem112 {
+				font-size: 8px;
+				transform: scale(1, 1.2);
+			}
+
+			/* 黑葫芦主前标 */
+			.textItem2 {
+				top: 172px;
+				left: 23px;
+				width: 122px;
+				height: 26px;
+				font-size: 16px;
+			}
+
+			.textItem21,
+			.textItem22 {
+				font-size: 20px;
+				letter-spacing: 10px;
+				margin-left: 5px;
+			}
+
+			.textItem23 {
+				font-size: 18px;
+				letter-spacing: 2px;
+			}
+
+			.textItem26 {
+				font-size: 15px;
+			}
+
+			.textItem27,
+			.textItem28 {
+				font-size: 14px;
+				transform: scale(0.9, 1.2);
+			}
+
+			.textItem29 {
+				font-size: 12px;
+				transform: scale(0.9, 1.5);
+			}
+
+			.textItem210 {
+				font-size: 11px;
+				transform: scale(0.9, 1.4);
+			}
+
+			.textItem211,
+			.textItem212 {
+				font-size: 9px;
+				transform: scale(0.9, 1.7);
+			}
+
+
+
+			/* 黑葫芦主后标 */
+			.textItem3 {
+				top: 124px;
+				left: 216px;
+				width: 70px;
+				height: 39px;
+				font-size: 16px;
+				line-height: 17px;
+			}
+
+			.textItem31 {
+				font-size: 25px;
+			}
+
+			.textItem32 {
+				font-size: 24px;
+				letter-spacing: 10px;
+				margin-left: 5px;
+			}
+
+			.textItem33 {
+				font-size: 18px;
+			}
+
+			.textItem34 {
+				font-size: 16px;
+			}
+
+			.textItem35,
+			.textItem39,
+			.textItem310 {
+				font-size: 13px;
+				transform: scale(1, 1.3);
+				line-height: 14px;
+			}
+
+			.textItem36,
+			.textItem311,
+			.textItem312 {
+				font-size: 10px;
+				transform: scale(1, 1.6);
+				line-height: 10px;
+			}
+
+			/* 黑葫芦后腰 */
+			.textItem4 {
+				top: 173px;
+				left: 190px;
+				width: 123px;
+				height: 16px;
+				line-height: 16px;
+				font-size: 12px;
+			}
+
+			.textItem410 {
+				transform: scale(0.9, 1);
+			}
+
+			.textItem411 {
+				font-size: 11px;
+				transform: scale(0.9, 1);
+			}
+
+			.textItem412 {
+				font-size: 10px;
+				transform: scale(0.9, 1);
+			}
+
+			.textItem413 {
+				font-size: 9px;
+				transform: scale(1, 1.2);
+			}
+
+			.result-section {
+				margin-top: 24px;
+				padding: 20px;
+				background: #f8f9fa;
+				border-radius: 12px;
+				border-left: 4px solid #667eea;
+				/* animation: fadeIn 0.5s ease; */
+			}
+
+			.result-header {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				margin-bottom: 16px;
+			}
+
+			.result-title {
+				font-size: 16px;
+				color: #495057;
+				font-weight: 600;
+			}
+
+			.result-content {
+				background: white;
+				padding: 16px;
+				border-radius: 8px;
+				font-size: 14px;
+				color: #495057;
+				line-height: 1.5;
+				overflow-x: auto;
+			}
+
+			.empty-state {
+				text-align: center;
+				padding: 40px 20px;
+				color: #6c757d;
+			}
+
+			.empty-icon {
+				font-size: 48px;
+				margin-bottom: 16px;
+				opacity: 0.5;
+			}
+
+			.empty-text {
+				font-size: 14px;
+				margin-top: 8px;
+			}
+
+			@keyframes fadeIn {
+				from {
+					opacity: 0;
+					transform: translateY(10px);
+				}
+
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			.loading {
+				opacity: 0.7;
+				pointer-events: none;
+			}
+
+			.character-count {
+				position: absolute;
+				bottom: 8px;
+				right: 8px;
+				font-size: 12px;
+				color: #adb5bd;
+			}
+
+			.fade-enter-active,
+			.fade-leave-active {
+				/* transition: opacity 0.5s ease; */
+			}
+
+			.fade-enter,
+			.fade-leave-to {
+				/* opacity: 0; */
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app">
+			<div class="container">
+				<div class="header">
+					<h1>智能文本识别工具</h1>
+					<p>粘贴、清理、转换文本内容</p>
+				</div>
+
+				<div class="content">
+					<div class="status-message status-error">
+						<span>内容请按照此格式输入：<br>1放过新郎2喝酒找我3王牌吹瓶员4申请出战
+							<br>暂不支持内容中包含数字</span>
+					</div>
+
+					<div class="textarea-container">
+						<textarea class="textarea" v-model="inputText" placeholder="请在此处粘贴文本内容，或点击下方按钮进行操作..."
+							@input="clearResult"></textarea>
+						<div class="character-count" v-if="inputText">
+							{{ inputText.length }} 字符
+						</div>
+					</div>
+
+					<div class="button-group">
+						<button class="btn btn-secondary" @click="pasteFromClipboard" :disabled="loading">
+							<i class="fas fa-paste"></i>
+							粘贴
+						</button>
+						<button class="btn btn-primary" @click="processText" :disabled="!inputText || loading">
+							<i class="fas fa-cogs"></i>
+							识别
+						</button>
+						<button class="btn btn-primary" @click="pasteAndProcess" :disabled="loading">
+							<i class="fas fa-bolt"></i>
+							粘贴并识别
+						</button>
+					</div>
+
+					<div class="theme-section">
+						<h3 class="theme-title">颜色选择</h3>
+						<div class="theme-options">
+							<div class="theme-option theme-black" :class="{ active: selectedTheme === 'black' }"
+								@click="changeTheme('black')">
+								<div class="theme-color"></div>
+								<div class="theme-name">黑色</div>
+							</div>
+							<div class="theme-option theme-yellow" :class="{ active: selectedTheme === 'yellow' }"
+								@click="changeTheme('yellow')">
+								<div class="theme-color"></div>
+								<div class="theme-name">黄色</div>
+							</div>
+							<div class="theme-option theme-orange" :class="{ active: selectedTheme === 'orange' }"
+								@click="changeTheme('orange')">
+								<div class="theme-color"></div>
+								<div class="theme-name">橙色</div>
+							</div>
+						</div>
+
+						<div class="theme-image" ref="themeImage">
+							<!-- <transition name="fade" mode="out-in"> -->
+							<img :key="selectedTheme" :src="getThemeImage(selectedTheme)"
+								:alt="getThemeAlt(selectedTheme)">
+							<div class="textList">
+								<div class="textItem" :class="['textItem'+i,'textItem'+i+item.length]"
+									v-for="(item,i) in processedResult" :key="i">{{item}}</div>
+							</div>
+						</div>
+						<div class="btn btnBot btn-primary" @click="capture">保存</div>
+					</div>
+
+					<!-- <div class="result-section" v-if="processedResult">
+                    <div class="result-header">
+                        <i class="fas fa-check-circle" style="color: #2b8a3e;"></i>
+                        <h3 class="result-title">处理结果</h3>
+                    </div>
+                    <pre class="result-content">{{ JSON.stringify(processedResult, null, 2) }}</pre>
+                </div> -->
+
+					<!-- <div class="empty-state" v-else-if="!inputText">
+						<i class="fas fa-clipboard empty-icon"></i>
+						<p>等待处理内容</p>
+						<p class="empty-text">请粘贴文本内容后点击识别按钮</p>
+					</div> -->
+				</div>
+			</div>
+		</div>
+		<script src="../js/main.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+		<script>
+			new Vue({
+				el: '#app',
+				data: {
+					inputText: '',
+					processedResult: null,
+					loading: false,
+					selectedTheme: 'black',
+					status: {
+						message: '',
+						type: 'info',
+						icon: ''
+					},
+					previewImg: ''
+				},
+				mounted() {
+					this.showStatus('欢迎使用智能文本识别工具', 'info');
+				},
+				methods: {
+					capture(name, isSave, isFace) {
+
+						this.$nextTick(() => {
+							console.log('this.$refs[] ----', this.$refs['themeImage'])
+							html2canvas(this.$refs['themeImage'], {
+								scale: 2,
+								useCORS: true,
+								backgroundColor: null
+							}).then(canvas => {
+								let img = canvas.toDataURL('image/png')
+								this.previewImg = img
+								this.downloadImage(canvas)
+
+
+							});
+						})
+					},
+					downloadImage(canvas) {
+						const link = document.createElement('a')
+						link.download = 'screenshot-' + Date.now() + '.png'
+						link.href = canvas.toDataURL()
+						link.click()
+					},
+					smartStringToObject(str) {
+						const result = {};
+
+						// 去除所有标点符号（包括中文和英文标点）
+						const cleanedStr = str.replace(/[\s!"#$%&'*+,\-./:;<=>?@[\\\]^_`{|}~，。？！；：""''【】《》〈〉、…·]/g,
+							'');
+
+						// 匹配数字后跟非数字字符的模式
+						const regex = /(\d+)\s*([^\d]+?)(?=\d|$)/g;
+						let match;
+
+						while ((match = regex.exec(cleanedStr)) !== null) {
+							const key = parseInt(match[1]);
+							const value = match[2].trim().replace(/\s+/g, '');
+							result[key] = value;
+						}
+
+						return result;
+					},
+
+					showStatus(message, type = 'info') {
+						const icons = {
+							info: 'fas fa-info-circle',
+							success: 'fas fa-check-circle',
+							error: 'fas fa-exclamation-triangle'
+						};
+
+						this.status = {
+							message: message,
+							type: type,
+							icon: icons[type]
+						};
+
+						setTimeout(() => {
+							this.status = {
+								message: '',
+								type: 'info',
+								icon: ''
+							};
+						}, 3000);
+					},
+
+					async pasteFromClipboard() {
+						this.loading = true;
+						this.showStatus('正在读取剪贴板内容...', 'info');
+
+						try {
+							if (navigator.clipboard && navigator.clipboard.readText) {
+								const text = await navigator.clipboard.readText();
+								this.inputText = text;
+								this.showStatus('粘贴成功！', 'success');
+							} else {
+								const textarea = document.createElement('textarea');
+								document.body.appendChild(textarea);
+								textarea.focus();
+
+								if (document.execCommand('paste')) {
+									this.inputText = textarea.value;
+									this.showStatus('粘贴成功！', 'success');
+								} else {
+									throw new Error('浏览器不支持剪贴板API');
+								}
+								document.body.removeChild(textarea);
+							}
+						} catch (error) {
+							console.error('粘贴失败:', error);
+							this.showStatus('粘贴失败：' + error.message, 'error');
+						} finally {
+							this.loading = false;
+						}
+					},
+
+					processText() {
+						if (!this.inputText.trim()) {
+							this.showStatus('请输入要处理的文本内容', 'error');
+							return;
+						}
+
+						this.loading = true;
+						this.showStatus('正在处理文本内容...', 'info');
+
+						setTimeout(() => {
+							try {
+								this.processedResult = this.smartStringToObject(this.inputText);
+								console.log('processedResult ----', this.processedResult)
+								if (Object.keys(this.processedResult).length === 0) {
+									this.showStatus('未找到匹配的文本模式', 'error');
+								} else {
+									this.showStatus('处理完成！', 'success');
+								}
+							} catch (error) {
+								console.error('处理失败:', error);
+								this.showStatus('处理失败：' + error.message, 'error');
+							} finally {
+								this.loading = false;
+							}
+						}, 600);
+					},
+
+					async pasteAndProcess() {
+						await this.pasteFromClipboard();
+						if (this.inputText.trim()) {
+							setTimeout(() => {
+								this.processText();
+							}, 200);
+						}
+					},
+
+					clearResult() {
+						// this.processedResult = null;
+					},
+
+					changeTheme(theme) {
+						this.selectedTheme = theme;
+						this.showStatus(`已切换到${this.getThemeName(theme)}主题`, 'success');
+					},
+
+					getThemeImage(theme) {
+						const images = {
+							black: 'https://anii-1303089700.cos.ap-chengdu.myqcloud.com/xxjz/20250718/7d5a905664074f9caeafd8da3b564ea1-tmp_3d6abb55d22a29be1ccfee3ceb07588d.png',
+							yellow: 'https://anii-1303089700.cos.ap-chengdu.myqcloud.com/xxjz/20250718/c54b57b88d9d4c61a67d65e21b4384b2-tmp_c471a05bb2d981953f1427cab24ca1cb.png',
+							orange: 'https://anii-1303089700.cos.ap-chengdu.myqcloud.com/xxjz/20250718/f29e8a4c1be14b19acb17cf4b2ea39fc-tmp_7bba77674a1ca9e49a4733de13849e10.png'
+						};
+						return images[theme];
+					},
+
+					getThemeAlt(theme) {
+						const alts = {
+							black: '黑色主题对应的城市夜景图片',
+							yellow: '黄色主题对应的向日葵花田图片',
+							orange: '橙色主题对应的日落美景图片'
+						};
+						return alts[theme];
+					},
+
+					getThemeName(theme) {
+						const names = {
+							black: '黑色',
+							yellow: '荧光黄',
+							orange: '橙色'
+						};
+						return names[theme];
+					}
+				}
+			});
+		</script>
+	</body>
+</html>
