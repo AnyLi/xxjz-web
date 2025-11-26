@@ -653,7 +653,7 @@
 				error-message="输入链接规格前缀，复制时自动拼接衣服颜色+名称" />
 				</div> -->
 			<div class="btns flexYCenter" v-if="chooseClothesList.length&&tl()">
-				<div class="btn mainLightBack main" @click="captureAll">全部生成图片</div>
+				<div class="btn mainLightBack main" @click="captureAll">{{pic?'重新生成全部':'全部生成图片'}}</div>
 				<div class="btn yellowBack white" @click="lookImg" v-if="pic">查看({{pic}})
 				</div>
 				<div class="btn mainBack white" @click="saveImg" v-if="pic">全部保存
@@ -1019,7 +1019,11 @@
 					},
 					gl() {
 						let list = Object.values(this.previewImg)
+						console.log('list -------', list)
 						this.pic = list?.length
+						if (this.pic) {
+							vant.Toast.clear()
+						}
 					},
 					saveImg() {
 						let list = Object.values(this.previewImg)
@@ -1312,15 +1316,20 @@
 
 					},
 					captureAll() {
+						this.previewImg = {}
+						this.pic = 0
 						vant.Toast.loading({
 							message: '生成中不要退出...',
 							forbidClick: true,
+							duration: 0
 						});
-						for (let index in this.chooseClothesInfoList) {
-							for (let i in this.chooseTextList) {
-								this.capture('captureArea' + index + i)
+						this.$nextTick(() => {
+							for (let index in this.chooseClothesInfoList) {
+								for (let i in this.chooseTextList) {
+									this.capture('captureArea' + index + i)
+								}
 							}
-						}
+						})
 					},
 					checkAll(categoryIndex) {
 						const category = this.clothesList[categoryIndex];
@@ -1380,7 +1389,8 @@
 						get('product/list', {
 							// sortType: 2
 						}).then(res => {
-							let data = res.data.slice(0, 18)
+							let data = res.data
+							// let data = res.data.slice(0, 18)
 							for (let i in data) {
 								for (let j in data[i].itemList) {
 									if (data[i].itemList[j].productId == 25) data[i].itemList[j]
@@ -1430,7 +1440,6 @@
 							this.$forceUpdate()
 						}
 						this.$nextTick(() => {
-
 							html2canvas(this.$refs[name][0], {
 								scale: 2,
 								useCORS: true,
@@ -1447,7 +1456,6 @@
 										setTimeout(() => {
 											this.showSku = true
 											this.$forceUpdate()
-
 										}, 200)
 									}
 								}

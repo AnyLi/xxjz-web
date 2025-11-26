@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>移动端图片拼接工具</title>
+		<script src="https://cdn.tailwindcss.com"></script>
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+		<style>
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+
+			body {
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				min-height: 100vh;
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+			}
+
+			.image-card {
+				transition: all 0.3s ease;
+				position: relative;
+			}
+
+			.image-card.selected {
+				border-color: #3b82f6;
+				box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+			}
+
+			.preview-container {
+				background: white;
+				border-radius: 12px;
+				overflow: hidden;
+				position: relative;
+			}
+
+			/* .combination-label {
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				text-align: center;
+				padding: 12px;
+				font-weight: bold;
+				z-index: 10;
+				font-size: 32px;
+				width: 100%;
+				color: #f00;
+			} */
+			.combination-label {
+				position: absolute;
+				background: linear-gradient(transparent, rgba(0,0,0,0.7));
+				color: white;
+				text-align: center;
+				padding: 12px 16px;
+				font-weight: bold;
+				z-index: 10;
+			}
+			.btn-primary {
+				background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+				color: white;
+				border: none;
+				border-radius: 12px;
+				padding: 14px 20px;
+				font-weight: 600;
+				transition: all 0.3s;
+			}
+
+			.btn-primary:active {
+				transform: scale(0.98);
+			}
+
+			.modal-overlay {
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background: rgba(0, 0, 0, 0.8);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				z-index: 1000;
+				padding: 16px;
+			}
+
+			.grid-item {
+				background-size: contain;
+				/* background-size: cover; */
+				background-position: center;
+				border-radius: 1px;
+				background-repeat: no-repeat;
+				overflow: hidden;
+			}
+
+			.grid-item-img {
+				transform-origin: center;
+				width: 100%;
+			}
+
+			.fade-enter-active,
+			.fade-leave-active {
+				transition: opacity 0.3s;
+			}
+
+			.fade-enter,
+			.fade-leave-to {
+				opacity: 0;
+			}
+
+			.label-top {
+				top: 0;
+				bottom: auto;
+				background: linear-gradient(rgba(255, 255, 255, 0.7), transparent);
+			}
+
+			.label-middle {
+				top: 50%;
+				bottom: auto;
+				transform: translateY(-50%);
+			}
+
+			.label-bottom {
+				top: auto;
+				bottom: 0;
+				background: linear-gradient(transparent, rgba(255, 255, 255, 0.7));
+			}
+		</style>
+	</head>
+	<body class="min-h-screen py-4 px-3">
+		<div id="app">
+			<!-- 头部 -->
+			<header class="mb-6">
+				<div class="bg-white rounded-xl shadow-lg p-5 text-center">
+					<h1 class="text-2xl font-bold text-gray-800 mb-1">
+						<i class="fas fa-images mr-2"></i>图片拼接工具
+					</h1>
+					<p class="text-gray-600 text-sm">选择图片生成组合装效果图</p>
+				</div>
+			</header>
+
+			<div class="space-y-5">
+				<!-- 图片选择区域 -->
+				<div class="bg-white rounded-xl shadow-lg p-5">
+					<div class="flex justify-between items-center mb-4">
+						<h2 class="text-lg font-semibold text-gray-800">图片库</h2>
+						<div class="flex space-x-2">
+							<button @click="selectAll" class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm">
+								<i class="fas fa-check-double mr-1"></i>全选
+							</button>
+							<button @click="clearSelection"
+								class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm">
+								<i class="fas fa-times mr-1"></i>清空
+							</button>
+						</div>
+					</div>
+
+					<!-- 图片网格 -->
+					<div class="grid grid-cols-3 gap-3">
+						<div v-for="(image, index) in imageList" :key="index"
+							class="image-card bg-white p-2 rounded-lg border-2 border-gray-200 aspect-square"
+							:class="selectedImages.includes(image) ? 'selected' : ''" @click="toggleSelection(image)">
+							<img :src="image.imageUrl" :alt="image.alt" class="w-full h-full object-cover rounded-md">
+							<div v-if="selectedImages.includes(image)"
+								class="absolute top-2 right-2 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+								<i class="fas fa-check text-white text-xs"></i>
+							</div>
+						</div>
+					</div>
+
+					<!-- 加载状态 -->
+					<div v-if="loading" class="text-center py-8">
+						<i class="fas fa-spinner fa-spin text-blue-500 text-xl mb-2"></i>
+						<p class="text-gray-600 text-sm">正在加载图片...</p>
+					</div>
+				</div>
+
+				<!-- 选择统计 -->
+				<div class="bg-white rounded-xl shadow-lg p-5">
+					<h3 class="text-lg font-semibold text-gray-800 mb-3">选择统计</h3>
+					<div class="space-y-3">
+						<div class="flex justify-between items-center">
+							<span class="text-gray-600 text-sm">已选图片</span>
+							<span class="font-semibold text-blue-600">{{ selectedImages.length }} /
+								{{ imageList.length }}</span>
+						</div>
+						<div class="w-full bg-gray-200 rounded-full h-2">
+							<div class="bg-blue-500 h-2 rounded-full transition-all duration-300"
+								:style="{ width: `${(selectedImages.length / imageList.length) * 100}%`}"></div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 布局设置 -->
+				<div class="bg-white rounded-xl shadow-lg p-5">
+					<h3 class="text-lg font-semibold text-gray-800 mb-3">布局设置</h3>
+					<div class="space-y-4">
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-2">网格列数</label>
+							<div class="grid grid-cols-3 gap-2">
+								<button v-for="col in [2, 3, 4]" :key="col" @click="gridColumns = col"
+									class="py-2 text-center rounded-lg transition-colors"
+									:class="gridColumns === col ? 'bg-blue-100 text-blue-700 border border-blue-300' : 'bg-gray-100 text-gray-700 border border-gray-200'">
+									{{ col }}列
+								</button>
+							</div>
+						</div>
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-2">画布尺寸</label>
+							<div class="grid grid-cols-2 gap-2">
+								<button v-for="size in [600, 800]" :key="size" @click="canvasSize = size"
+									class="py-2 text-center rounded-lg transition-colors"
+									:class="canvasSize === size ? 'bg-blue-100 text-blue-700 border border-blue-300' : 'bg-gray-100 text-gray-700 border border-gray-200'">
+									{{ size }}×{{ size }}
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 操作按钮 -->
+				<div class="bg-white rounded-xl shadow-lg p-5">
+					<h3 class="text-lg font-semibold text-gray-800 mb-3">操作</h3>
+					<div class="space-y-3">
+						<button @click="generatePreview" :disabled="selectedImages.length === 0"
+							class="btn-primary w-full">
+							<i class="fas fa-eye mr-2"></i>生成预览
+						</button>
+						<button @click="capture" :disabled="!previewGenerated"
+							class="btn-primary w-full bg-gradient-to-r from-green-500 to-teal-600">
+							保存到本地
+
+					</div>
+				</div>
+			</div>
+
+			<!-- 预览模态框 -->
+			<div v-if="showPreview" class="modal-overlay">
+				<div class="bg-white rounded-xl w-full max-w-md">
+					<div class="flex justify-between items-center p-4 border-b">
+						<h3 class="text-lg font-semibold text-gray-800">预览拼接效果</h3>
+						<div class="flex items-center space-x-2">
+							<button @click="zoomOut"
+								class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+								<i class="fas fa-search-minus text-gray-600"></i>
+							</button>
+							<button @click="zoomIn"
+								class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+								<i class="fas fa-search-plus text-gray-600"></i>
+							</button>
+
+							<button @click="showPreview = false"
+								class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+								<i class="fas fa-times text-gray-600"></i>
+							</button>
+						</div>
+					</div>
+
+					<div class="flex justify-between items-center p-4 border-b">
+						<div class="flex items-center space-x-2">
+							<button @click="zoomSizeOut"
+								class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+								<i class="fas fa-search-minus text-gray-600"></i>
+							</button>
+							<button @click="zoomSizeIn"
+								class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+								<i class="fas fa-search-plus text-gray-600"></i>
+							</button>
+							<!-- 新增上下移动按钮 -->
+							<!-- 上下左右移动按钮 -->
+							<button @click="moveTextUp"
+								class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+								<i class="fas fa-arrow-up text-gray-600"></i>
+							</button>
+							<button @click="moveTextDown"
+								class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+								<i class="fas fa-arrow-down text-gray-600"></i>
+							</button>
+							<button @click="moveTextLeft"
+								class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+								<i class="fas fa-arrow-left text-gray-600"></i>
+							</button>
+							<button @click="moveTextRight"
+								class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+								<i class="fas fa-arrow-right text-gray-600"></i>
+							</button>
+							<!-- 重置按钮 -->
+							<button @click="resetTextPosition"
+								class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+								<i class="fas fa-sync-alt text-gray-600"></i>
+							</button>
+
+						</div>
+					</div>
+
+
+					<div class="p-4 overflow-auto">
+						<div ref="previewCanvas" class="preview-container mx-auto" :style="{ 
+                             width: '100%',
+                             aspectRatio: '1',
+                             display: 'grid',
+                             gridTemplateColumns: `repeat(${gridColumns}, 1fr)`,
+                             gap: '8px',
+                             padding: '1px'
+                         }">
+							<!-- <div v-for="(image, index) in selectedImages" :key="index" class="grid-item" :style="{
+                                 backgroundImage: `url(${image.imageUrl})`
+                             }">
+							</div> -->
+							<div v-for="(image, index) in selectedImages" :key="index" class="grid-item flexCenter">
+								<img class="grid-item-img" :src="image.imageUrl" />
+							</div>
+							<!-- <img v-for="(image, index) in selectedImages" :key="index" class="grid-item" :src="image.imageUrl" /> -->
+							<!-- 组合装文字 -->
+							<div class="combination-label" 
+							     :style="getLabelStyle"
+							     @mousedown="startDrag"
+							     @touchstart="startDrag">
+							    <div class="text-lg font-bold">{{ selectedImages.length }}件组合装</div>
+							</div>
+
+						</div>
+					</div>
+
+					<div class="p-4 border-t bg-gray-50">
+						<div class="grid grid-cols-2 gap-3">
+							<button @click="showPreview = false" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">
+								取消
+							</button>
+							<button @click="saveToLocal"
+								class="btn-primary bg-gradient-to-r from-green-500 to-teal-600">
+								保存图片
+
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 成功提示 -->
+			<div v-if="showSuccess"
+				class="fixed bottom-4 left-4 right-4 bg-green-500 text-white p-4 rounded-xl shadow-lg z-50">
+				<div class="flex items-center justify-center">
+					<i class="fas fa-check-circle mr-2"></i>
+					<span>图片已成功保存到相册！</span>
+				</div>
+			</div>
+		</div>
+		</div>
+		<script src="../js/main.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+		<script>
+			new Vue({
+				el: '#app',
+				data: {
+					imageList: [],
+					selectedImages: [],
+					loading: false,
+					gridColumns: 3,
+					canvasSize: 600,
+					showPreview: false,
+					previewGenerated: false,
+					showSuccess: false,
+					labelPosition: 'bottom', // 可以是 'top', 'bottom', 'middle'
+					zoomLevelText: 100,
+					zoomLevelRightText: 40,
+					zoomLevel: 1,
+					zoomSizeLevel: 32,
+					textPosition: {
+						top: 50,
+						left: 50
+					},
+				},
+				mounted() {
+					setTimeout(() => {
+						this.$nextTick(() => {
+							this.fetchImages();
+						})
+					}, 2000)
+				},
+
+				methods: {
+					startDrag(event) {
+					        event.preventDefault();
+					        const isTouch = event.type === 'touchstart';
+					        this.dragging = true;
+					        
+					        // 添加半透明效果
+					        this.$refs.previewCanvas.querySelector('.combination-label').style.opacity = '0.8';
+					        
+					        // 为移动端和桌面端分别绑定事件
+					        if (isTouch) {
+					            document.addEventListener('touchmove', this.onDrag);
+					            document.addEventListener('touchend', this.stopDrag);
+					        } else {
+					            document.addEventListener('mousemove', this.onDrag);
+					            document.addEventListener('mouseup', this.stopDrag);
+					        }
+					    },
+					    
+					    onDrag(event) {
+					        if (!this.dragging) return;
+					        
+					        const container = this.$refs.previewCanvas;
+					        const label = container.querySelector('.combination-label');
+					        
+					        if (!container || !label) return;
+					        
+					        const rect = container.getBoundingClientRect();
+					        let clientX, clientY;
+					        
+					        if (event.type === 'touchmove') {
+					            clientX = event.touches[0].clientX;
+					            clientY = event.touches[0].clientY;
+								}
+					        
+					        // 计算相对位置（百分比）
+					        const left = ((clientX - rect.left) / rect.width) * 100;
+					        const top = ((clientY - rect.top) / rect.height) * 100;
+					        
+					        // 限制在容器范围内
+					        this.textPosition.left = Math.max(0, Math.min(left, 100));
+					        this.textPosition.top = Math.max(0, Math.min(top, 100));
+							
+					    },
+					    
+					    stopDrag() {
+					        this.dragging = false;
+					        
+					        // 移除事件监听器
+					        document.removeEventListener('mousemove', this.onDrag);
+					    },
+					    
+					    getLabelStyle() {
+					        return {
+					            left: `${this.textPosition.left}%`,
+					            top: `${this.textPosition.top}%`,
+					            opacity: '1'
+					        };
+					    },
+					// 上下移动方法
+					moveTextUp() {
+						this.textPosition.top = Math.max(this.textPosition.top - 5, 20);
+						this.applyTextPosition();
+					},
+
+					moveTextDown() {
+						this.textPosition.top = Math.min(this.textPosition.top + 5, 90);
+						this.applyTextPosition();
+					},
+
+					// 左右移动方法  
+					moveTextLeft() {
+						this.textPosition.left = Math.max(this.textPosition.left - 5, 20);
+						this.applyTextPosition();
+					},
+
+					moveTextRight() {
+						this.textPosition.left = Math.min(this.textPosition.left + 5, 90);
+						this.applyTextPosition();
+					},
+
+					// 应用文字位置
+					applyTextPosition() {
+						const textElements = this.$refs.previewCanvas?.querySelectorAll('.combination-label');
+						if (textElements) {
+							textElements.forEach(item => {
+								item.style.top = `${this.textPosition.top}%`;
+								item.style.left = `${this.textPosition.left}%`;
+								item.style.transform = 'translate(-50%, -50%)';
+							});
+						}
+					},
+
+					// 重置文字位置到中心
+					resetTextPosition() {
+						this.textPosition = {
+							top: 50,
+							left: 50
+						};
+						this.applyTextPosition();
+					},
+					zoomIn() {
+						this.zoomLevel = Math.min((this.zoomLevel || 1) + 0.1, 2.0);
+						this.applyZoom();
+					},
+
+					zoomOut() {
+						this.zoomLevel = Math.max((this.zoomLevel || 1) - 0.1, 0.5);
+						this.applyZoom();
+					},
+
+					applyZoom() {
+						const gridItems = this.$refs.previewCanvas?.querySelectorAll('.grid-item-img');
+						if (gridItems) {
+							gridItems.forEach(item => {
+								item.style.transform = `scale(${this.zoomLevel})`;
+							})
+						}
+					},
+					zoomSizeIn() {
+						this.zoomSizeLevel = Math.min((this.zoomSizeLevel || 32) + 1, 100);
+						this.applySizeZoom();
+					},
+
+					zoomSizeOut() {
+						this.zoomSizeLevel = Math.max((this.zoomSizeLevel || 32) - 1, 9);
+						this.applySizeZoom();
+					},
+
+					applySizeZoom() {
+						const gridItems = this.$refs.previewCanvas?.querySelectorAll('.combination-label');
+						if (gridItems) {
+							gridItems.forEach(item => {
+								item.style.fontSize = `${this.zoomSizeLevel}px`;
+							})
+						}
+					},
+					// zoomRightText() {
+					// 	this.zoomLevelRightText = Math.max((this.zoomLevelRightText || 100) - 10, 0);
+					// 	const gridItem = this.$refs.previewCanvas?.querySelectorAll('.combination-label')[0]
+					// 	if (gridItem) {
+					// 		gridItem.style.left = `${this.zoomLevelRightText}%`;
+					// 	}
+					// },
+
+					// zoomRightText() {
+					// 	this.zoomLevelRightText = Math.max((this.zoomLevelRightText || 100) - 10, 0);
+					// 	this.applyZoomRightText();
+					// },
+
+					// applyZoomRightText() {
+					// 	const gridItems = this.$refs.previewCanvas?.querySelectorAll('.combination-label');
+					// 	if (gridItems) {
+					// 		gridItems.forEach(item => {
+					// 			item.style.left = `${this.zoomLevelRightText}%`;
+					// 		})
+					// 	}
+					// },
+					zoomLeftText() {
+						this.zoomLevelRightText = Math.min((this.zoomLevelRightText || 90) + 10, 100);
+						this.applyZoomText('left', 'zoomLevelRightText');
+					},
+					zoomRightText() {
+						this.zoomLevelRightText = Math.max((this.zoomLevelRightText || 100) - 10, 0);
+						this.applyZoomText('left', 'zoomLevelRightText');
+					},
+					zoomInText() {
+						this.zoomLevelText = Math.min((this.zoomLevelText || 0) + 10, 90);
+						this.applyZoomText('top', 'zoomLevelText');
+					},
+					zoomOutText() {
+						this.zoomLevelText = Math.max((this.zoomLevelText || 90) - 10, 0);
+						this.applyZoomText('top', 'zoomLevelText');
+					},
+
+					applyZoomText(name, value) {
+						const gridItems = this.$refs.previewCanvas?.querySelectorAll('.combination-label');
+						if (gridItems) {
+							gridItems.forEach(item => {
+								item.style[name] = `${this[value]}%`;
+							})
+						}
+					},
+					getLabelPositionClass() {
+						return {
+							'label-top': this.labelPosition === 'top',
+							'label-middle': this.labelPosition === 'middle',
+							'label-bottom': this.labelPosition === 'bottom'
+						};
+					},
+					moveLabelUp() {
+						if (this.labelPosition === 'bottom') {
+							this.labelPosition = 'middle';
+						} else if (this.labelPosition === 'middle') {
+							this.labelPosition = 'top';
+						}
+					},
+
+					moveLabelDown() {
+						if (this.labelPosition === 'top') {
+							this.labelPosition = 'middle';
+						} else if (this.labelPosition === 'middle') {
+							this.labelPosition = 'bottom';
+						}
+					},
+					async fetchImages() {
+						this.loading = true;
+						let list = sessionStorage.getItem('imageList')
+						if (list?.length) {
+							this.imageList = JSON.parse(list)
+							return this.loading = false;
+						}
+						try {
+							let res = await get('product/18', {
+								id: 18
+							})
+							this.imageList = res.data?.itemList
+							sessionStorage.setItem('imageList', JSON.stringify(this.imageList))
+						} catch (error) {
+							console.error('加载图片失败:', error);
+						} finally {
+							this.loading = false;
+						}
+					},
+
+					toggleSelection(image) {
+						const index = this.selectedImages.indexOf(image);
+						if (index === -1) {
+							this.selectedImages.push(image);
+						} else {
+							this.selectedImages.splice(index, 1);
+						}
+					},
+
+					selectAll() {
+						this.selectedImages = [...this.imageList];
+					},
+
+					clearSelection() {
+						this.selectedImages = [];
+						this.previewGenerated = false;
+					},
+
+					generatePreview() {
+						if (this.selectedImages.length === 0) {
+							alert('请先选择图片');
+							return;
+						}
+						this.previewGenerated = true;
+						this.showPreview = true;
+
+						// 确保DOM更新后执行
+						this.$nextTick(() => {
+							this.renderPreview();
+						});
+					},
+
+					renderPreview() {
+						// 确保图片加载完成后再进行预览
+						const images = this.selectedImages;
+						let loadedCount = 0;
+
+						images.forEach((image, index) => {
+							const img = new Image();
+							img.onload = () => {
+								loadedCount++;
+								if (loadedCount === images.length) {
+									console.log('所有图片加载完成，可以预览');
+								}
+							};
+							img.src = image.imageUrl;
+						});
+					},
+capture() {
+
+						this.$nextTick(() => {
+							console.log('this.$refs[] ----', this.$refs['previewCanvas'])
+							html2canvas(this.$refs['previewCanvas'], {
+								scale: 2,
+								useCORS: true,
+								backgroundColor: null
+							}).then(canvas => {
+								let img = canvas.toDataURL('image/png')
+								// this.previewImg = img
+								this.downloadImage(canvas)
+
+
+							});
+						})
+					},
+					downloadImage(canvas) {
+						const link = document.createElement('a')
+						link.download = 'screenshot-' + Date.now() + '.png'
+						link.href = canvas.toDataURL()
+						link.click()
+					},
+					async saveToLocal() {
+						if (!this.previewGenerated) {
+							alert('请先生成预览');
+							return;
+						}
+
+						try {
+							console.log('开始生成图片...');
+
+							// 创建新的canvas元素用于生成图片
+							const previewElement = this.$refs.previewCanvas;
+							const canvas = await html2canvas(previewElement, {
+								backgroundColor: '#ffffff',
+								scale: 2,
+								useCORS: true,
+								allowTaint: true,
+								logging: false
+							});
+
+							const link = document.createElement('a');
+							link.download = `组合装图片-${new Date().getTime()}.png`;
+							link.href = canvas.toDataURL('image/png');
+							document.body.appendChild(link);
+							link.click();
+							document.body.removeChild(link);
+
+							this.showSuccess = true;
+							setTimeout(() => {
+								this.showSuccess = false;
+							}, 3000);
+
+						} catch (error) {
+							console.error('保存图片失败:', error);
+							alert('保存失败，请重试');
+						}
+					}
+				}
+			});
+		</script>
+	</body>
+</html>
