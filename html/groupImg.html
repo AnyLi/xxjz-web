@@ -37,11 +37,12 @@
 				position: relative;
 			}
 
-			/* .combination-label {
+			.combination-label {
 				position: absolute;
 				bottom: 0;
 				left: 0;
 				right: 0;
+				/* background: linear-gradient(transparent, rgba(255, 255, 255, 0.7)); */
 				text-align: center;
 				padding: 12px;
 				font-weight: bold;
@@ -49,16 +50,8 @@
 				font-size: 32px;
 				width: 100%;
 				color: #f00;
-			} */
-			.combination-label {
-				position: absolute;
-				background: linear-gradient(transparent, rgba(0,0,0,0.7));
-				color: white;
-				text-align: center;
-				padding: 12px 16px;
-				font-weight: bold;
-				z-index: 10;
 			}
+
 			.btn-primary {
 				background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
 				color: white;
@@ -315,13 +308,9 @@
 							</div>
 							<!-- <img v-for="(image, index) in selectedImages" :key="index" class="grid-item" :src="image.imageUrl" /> -->
 							<!-- 组合装文字 -->
-							<div class="combination-label" 
-							     :style="getLabelStyle"
-							     @mousedown="startDrag"
-							     @touchstart="startDrag">
-							    <div class="text-lg font-bold">{{ selectedImages.length }}件组合装</div>
+							<div class="combination-label">
+								<div class="font-bold">{{ selectedImages.length }}件组合装</div>
 							</div>
-
 						</div>
 					</div>
 
@@ -352,6 +341,12 @@
 		<script src="../js/main.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 		<script>
+			  // 阻止双击事件
+			        document.addEventListener('dblclick', function(e) {
+			            e.preventDefault();
+			            e.stopPropagation();
+			            return false;
+			        }, { passive: false });
 			new Vue({
 				el: '#app',
 				data: {
@@ -382,64 +377,6 @@
 				},
 
 				methods: {
-					startDrag(event) {
-					        event.preventDefault();
-					        const isTouch = event.type === 'touchstart';
-					        this.dragging = true;
-					        
-					        // 添加半透明效果
-					        this.$refs.previewCanvas.querySelector('.combination-label').style.opacity = '0.8';
-					        
-					        // 为移动端和桌面端分别绑定事件
-					        if (isTouch) {
-					            document.addEventListener('touchmove', this.onDrag);
-					            document.addEventListener('touchend', this.stopDrag);
-					        } else {
-					            document.addEventListener('mousemove', this.onDrag);
-					            document.addEventListener('mouseup', this.stopDrag);
-					        }
-					    },
-					    
-					    onDrag(event) {
-					        if (!this.dragging) return;
-					        
-					        const container = this.$refs.previewCanvas;
-					        const label = container.querySelector('.combination-label');
-					        
-					        if (!container || !label) return;
-					        
-					        const rect = container.getBoundingClientRect();
-					        let clientX, clientY;
-					        
-					        if (event.type === 'touchmove') {
-					            clientX = event.touches[0].clientX;
-					            clientY = event.touches[0].clientY;
-								}
-					        
-					        // 计算相对位置（百分比）
-					        const left = ((clientX - rect.left) / rect.width) * 100;
-					        const top = ((clientY - rect.top) / rect.height) * 100;
-					        
-					        // 限制在容器范围内
-					        this.textPosition.left = Math.max(0, Math.min(left, 100));
-					        this.textPosition.top = Math.max(0, Math.min(top, 100));
-							
-					    },
-					    
-					    stopDrag() {
-					        this.dragging = false;
-					        
-					        // 移除事件监听器
-					        document.removeEventListener('mousemove', this.onDrag);
-					    },
-					    
-					    getLabelStyle() {
-					        return {
-					            left: `${this.textPosition.left}%`,
-					            top: `${this.textPosition.top}%`,
-					            opacity: '1'
-					        };
-					    },
 					// 上下移动方法
 					moveTextUp() {
 						this.textPosition.top = Math.max(this.textPosition.top - 5, 20);
