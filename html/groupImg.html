@@ -39,17 +39,18 @@
 
 			.combination-label {
 				position: absolute;
-				bottom: 0;
-				left: 0;
-				right: 0;
+				top: 54%;
+				left: 50%;
+				transform:translate(-50%, -50%);
 				/* background: linear-gradient(transparent, rgba(255, 255, 255, 0.7)); */
 				text-align: center;
 				padding: 12px;
 				font-weight: bold;
 				z-index: 10;
-				font-size: 32px;
+				font-size: 56px;
 				width: 100%;
 				color: #f00;
+				line-height: 1;
 			}
 
 			.btn-primary {
@@ -172,7 +173,7 @@
 				</div>
 
 				<!-- 选择统计 -->
-				<div class="bg-white rounded-xl shadow-lg p-5">
+				<!-- <div class="bg-white rounded-xl shadow-lg p-5">
 					<h3 class="text-lg font-semibold text-gray-800 mb-3">选择统计</h3>
 					<div class="space-y-3">
 						<div class="flex justify-between items-center">
@@ -185,7 +186,7 @@
 								:style="{ width: `${(selectedImages.length / imageList.length) * 100}%`}"></div>
 						</div>
 					</div>
-				</div>
+				</div> -->
 
 				<!-- 布局设置 -->
 				<div class="bg-white rounded-xl shadow-lg p-5">
@@ -201,7 +202,7 @@
 								</button>
 							</div>
 						</div>
-						<div>
+						<!-- <div>
 							<label class="block text-sm font-medium text-gray-700 mb-2">画布尺寸</label>
 							<div class="grid grid-cols-2 gap-2">
 								<button v-for="size in [600, 800]" :key="size" @click="canvasSize = size"
@@ -210,7 +211,7 @@
 									{{ size }}×{{ size }}
 								</button>
 							</div>
-						</div>
+						</div> -->
 					</div>
 				</div>
 
@@ -252,7 +253,7 @@
 						</div>
 					</div>
 
-					<div class="flex justify-between items-center p-4 border-b">
+					<div class="flex justify-between items-center p-3">
 						<div class="flex items-center space-x-2">
 							<button @click="zoomSizeOut"
 								class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -262,8 +263,6 @@
 								class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
 								<i class="fas fa-search-plus text-gray-600"></i>
 							</button>
-							<!-- 新增上下移动按钮 -->
-							<!-- 上下左右移动按钮 -->
 							<button @click="moveTextUp"
 								class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
 								<i class="fas fa-arrow-up text-gray-600"></i>
@@ -288,6 +287,30 @@
 
 						</div>
 					</div>
+					<div class="flex justify-between items-center px-3  pb-3 border-b">
+						<div class="flex items-center space-x-2">
+								<button @click="textColor = 'red'"
+									class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+									红
+								</button>
+								<button @click="textColor = 'black'"
+									class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+									黑
+								</button>
+								<button @click="textColor = 'white'"
+									class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+									白
+								</button>
+								<button @click="textColor = '#1685F4'"
+									class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+									蓝
+								</button>
+							<button @click="showText = !showText"
+								class="h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+								{{showText?'不':''}}显示
+							</button>
+						</div>
+					</div>
 
 
 					<div class="p-4 overflow-auto">
@@ -308,7 +331,7 @@
 							</div>
 							<!-- <img v-for="(image, index) in selectedImages" :key="index" class="grid-item" :src="image.imageUrl" /> -->
 							<!-- 组合装文字 -->
-							<div class="combination-label">
+							<div class="combination-label" :style="'color:'+textColor" v-if="showText">
 								<div class="font-bold">{{ selectedImages.length }}件组合装</div>
 							</div>
 						</div>
@@ -341,15 +364,17 @@
 		<script src="../js/main.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 		<script>
-			  // 阻止双击事件
-			        document.addEventListener('dblclick', function(e) {
-			            e.preventDefault();
-			            e.stopPropagation();
-			            return false;
-			        }, { passive: false });
+		  // 阻止双击事件
+			document.addEventListener('dblclick', function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				return false;
+			}, { passive: false });
 			new Vue({
 				el: '#app',
 				data: {
+					textColor:'red',
+					showText:true,
 					imageList: [],
 					selectedImages: [],
 					loading: false,
@@ -362,7 +387,7 @@
 					zoomLevelText: 100,
 					zoomLevelRightText: 40,
 					zoomLevel: 1,
-					zoomSizeLevel: 32,
+					zoomSizeLevel: 56,
 					textPosition: {
 						top: 50,
 						left: 50
@@ -406,7 +431,7 @@
 							textElements.forEach(item => {
 								item.style.top = `${this.textPosition.top}%`;
 								item.style.left = `${this.textPosition.left}%`;
-								item.style.transform = 'translate(-50%, -50%)';
+								// item.style.transform = 'translate(-50%, -50%)';
 							});
 						}
 					},
@@ -418,6 +443,9 @@
 							left: 50
 						};
 						this.applyTextPosition();
+						this.zoomSizeLevel = 56
+						this.applySizeZoom();
+						this.textColor = 'red'
 					},
 					zoomIn() {
 						this.zoomLevel = Math.min((this.zoomLevel || 1) + 0.1, 2.0);
@@ -438,12 +466,12 @@
 						}
 					},
 					zoomSizeIn() {
-						this.zoomSizeLevel = Math.min((this.zoomSizeLevel || 32) + 1, 100);
+						this.zoomSizeLevel = Math.min((this.zoomSizeLevel || 56) + 2, 100);
 						this.applySizeZoom();
 					},
 
 					zoomSizeOut() {
-						this.zoomSizeLevel = Math.max((this.zoomSizeLevel || 32) - 1, 9);
+						this.zoomSizeLevel = Math.max((this.zoomSizeLevel || 56) - 2, 9);
 						this.applySizeZoom();
 					},
 

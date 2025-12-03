@@ -174,7 +174,7 @@
 
 			.theme-options {
 				display: flex;
-				gap: 12px;
+				gap: 8px;
 				margin-bottom: 20px;
 			}
 
@@ -212,6 +212,10 @@
 
 			.theme-orange .theme-color {
 				background: linear-gradient(135deg, #FC3D1F 0%, #fb923c 100%);
+			}
+
+			.theme-red .theme-color {
+				background: linear-gradient(135deg, #f00 0%, #FC3D1F 100%);
 			}
 
 			.theme-name {
@@ -281,9 +285,16 @@
 				transform: scale(1, 1.2);
 			}
 
-			.textItem112 {
+			.textItem112,
+			.textItem113 {
 				font-size: 8px;
 				transform: scale(1, 1.2);
+			}
+
+			.textItem114,
+			.textItem115 {
+				font-size: 7px;
+				transform: scale(1, 1.4);
 			}
 
 			/* 黑葫芦主前标 */
@@ -308,12 +319,12 @@
 			}
 
 			.textItem26 {
-				font-size: 15px;
+				font-size: 16px;
 			}
 
 			.textItem27,
 			.textItem28 {
-				font-size: 14px;
+				font-size: 15px;
 				transform: scale(0.9, 1.2);
 			}
 
@@ -323,14 +334,20 @@
 			}
 
 			.textItem210 {
-				font-size: 11px;
+				font-size: 12px;
 				transform: scale(0.9, 1.4);
 			}
 
 			.textItem211,
 			.textItem212 {
-				font-size: 9px;
+				font-size: 11px;
 				transform: scale(0.9, 1.7);
+			}
+
+			.textItem213,
+			.textItem214 {
+				font-size: 8px;
+				transform: scale(1, 1.9);
 			}
 
 
@@ -373,10 +390,18 @@
 
 			.textItem36,
 			.textItem311,
-			.textItem312,.textItem313,.textItem314 {
+			.textItem312,
+			.textItem313,
+			.textItem314 {
 				font-size: 10px;
 				transform: scale(1, 1.6);
 				line-height: 10px;
+			}
+			.textItem315,
+			.textItem316 {
+				font-size: 8px;
+				transform: scale(1, 1.9);
+				line-height: 9px;
 			}
 
 			/* 黑葫芦后腰 */
@@ -403,9 +428,16 @@
 				transform: scale(0.9, 1);
 			}
 
-			.textItem413 {
+			.textItem413,
+			.textItem414 {
 				font-size: 9px;
 				transform: scale(1, 1.2);
+			}
+
+			.textItem415,
+			.textItem416 {
+				font-size: 8px;
+				transform: scale(1, 1.4);
 			}
 
 			.result-section {
@@ -493,6 +525,7 @@
 			}
 		</style>
 	</head>
+
 	<body>
 		<div id="app">
 			<div class="container">
@@ -503,8 +536,13 @@
 
 				<div class="content">
 					<div class="status-message status-error">
-						<span>内容请按照此格式输入：<br>1放过新郎2喝酒找我3王牌吹瓶员4申请出战
-							<br>暂不支持内容中包含数字</span>
+						<span>内容请按照此格式输入：<br>1放过新郎2(525 121代表)3新郎专属|王牌吹瓶员4滴滴代喝
+							<br>区域中包含数字请用英文括号eg:2区 525 121代表请输入2(525 121代表)
+							<br>3区需要换行请使用“|” 进行分隔 换行
+						<button class="btn btn-primary" @click="copyUnit" :disabled="loading">
+							<i class="fas fa-copy"></i>
+							复制“|”
+						</button></span>
 					</div>
 
 					<div class="textarea-container">
@@ -531,7 +569,12 @@
 					</div>
 
 					<div class="theme-section">
+						<div class="flexBtCenter">
 						<h3 class="theme-title">颜色选择</h3>
+						<button class="btn btn-primary" @click="isCustom=!isCustom">
+							切换底图
+						</button>
+						</div>
 						<div class="theme-options">
 							<div class="theme-option theme-black" :class="{ active: selectedTheme === 'black' }"
 								@click="changeTheme('black')">
@@ -548,6 +591,11 @@
 								<div class="theme-color"></div>
 								<div class="theme-name">橙色</div>
 							</div>
+							<div class="theme-option theme-red" :class="{ active: selectedTheme === 'red' }"
+								@click="changeTheme('red')">
+								<div class="theme-color"></div>
+								<div class="theme-name">大红</div>
+							</div>
 						</div>
 
 						<div class="theme-image" ref="themeImage">
@@ -555,8 +603,8 @@
 							<img :key="selectedTheme" :src="getThemeImage(selectedTheme)"
 								:alt="getThemeAlt(selectedTheme)">
 							<div class="textList">
-								<div class="textItem" :class="['textItem'+i,'textItem'+i+item.length]"
-									v-for="(item,i) in processedResult" :key="i">{{item}}</div>
+								<div class="textItem" :class="getClass(item,i)" v-for="(item,i) in processedResult"
+									:key="i" v-html="getText(item,i)"></div>
 							</div>
 						</div>
 						<div class="btn btnBot btn-primary" @click="capture">保存</div>
@@ -593,12 +641,180 @@
 						type: 'info',
 						icon: ''
 					},
-					previewImg: ''
+					previewImg: '',
+					isCustom:true,
 				},
 				mounted() {
 					this.showStatus('欢迎使用智能文本识别工具', 'info');
 				},
 				methods: {
+					copyUnit() {
+						navigator.clipboard.writeText('|')
+							.then(() => vant.Toast('复制成功'))
+							.catch(err => console.error("复制失败", err));
+					},
+					getText(item, i) {
+						item = String(item).trim()
+						let ii = item.indexOf('|')
+						if (ii == -1) {
+							return item
+						} else {
+							let arr = item.split('|')
+							let a = Math.max(arr[0].length, arr[1].length);
+							return arr[0] + '<br>' + arr[1]
+						}
+					},
+					getClass(item, i) {
+						item = String(item).trim()
+						console.log('item ---', item, i)
+						let l = item.length
+						let ii = item.indexOf('|')
+						if (ii != -1) {
+							let arr = item.split('|')
+							let a = Math.max(arr[0].length, arr[1].length);
+							l = a * 2
+						}
+						return ['textItem' + i, 'textItem' + i + l]
+					},
+					convertParenthesesArray(arr) {
+						const result = {};
+
+						arr.forEach(item => {
+							// 查找左括号位置
+							const openParenIndex = item.indexOf('(');
+							if (openParenIndex !== -1) {
+								// 提取数字键（左括号前的所有连续数字）
+								let keyEnd = openParenIndex;
+								let keyStart = 0;
+
+								// 提取完整的数字键
+								const key = parseInt(item.substring(0, openParenIndex));
+
+								// 提取括号内的内容
+								const closeParenIndex = item.indexOf(')');
+								if (closeParenIndex !== -1) {
+									const content = item.substring(openParenIndex + 1, closeParenIndex);
+
+									// 智能类型转换：如果内容可以转换为数字，则转换为数字类型
+									if (/^\d+$/.test(content.trim())) {
+										result[key] = parseInt(content.trim());
+									} else {
+										result[key] = content.trim();
+									}
+								}
+							}
+						});
+
+						return result;
+					},
+					extractFullSegments(str) {
+						const segments = [];
+						let currentIndex = 0;
+
+						while (currentIndex < str.length) {
+							const openParen = str.indexOf('(', currentIndex);
+							if (openParen === -1) break;
+
+							const closeParen = str.indexOf(')', openParen);
+							if (closeParen === -1) break;
+
+							// 确保左括号前至少有一位字符
+							if (openParen > 0) {
+								// 提取左括号前一位字符开始的完整片段
+								const startIndex = openParen - 1;
+								const endIndex = closeParen + 1;
+
+								// 获取完整片段
+								const fullSegment = str.substring(startIndex, endIndex);
+								segments.push(fullSegment.trim());
+
+								currentIndex = closeParen + 1;
+							} else {
+								currentIndex = openParen + 1;
+							}
+						}
+
+						return segments;
+					},
+					parseString(input) {
+						let result = {};
+						let currentIndex = 0;
+
+						// 提取值内容
+						let value = input
+						// 处理括号内容
+						const openParenIndex = value.indexOf('(');
+						const closeParenIndex = value.indexOf(')');
+
+						// 如果有完整的括号对
+						if (openParenIndex !== -1 && closeParenIndex !== -1 && closeParenIndex > openParenIndex) {
+							// 提取括号内的内容
+							const parenContent = value.substring(openParenIndex + 1, closeParenIndex).trim();
+
+							// 如果有括号前的内容，也作为独立属性
+							const beforeParen = value.substring(openParenIndex - 1, openParenIndex).trim();
+
+							// 设置属性值
+							if (beforeParen) {
+								result[beforeParen] = parenContent;
+								result[key + 1] = parenContent;
+								// input =
+							}
+							console.log('result- 111---', result)
+						}
+						console.log('result- 2222---', result)
+						// 遍历字符串寻找数字
+						for (let i = 0; i < input.length; i++) {
+							if (/\d/.test(input[i])) {
+								// 提取完整数字
+								const keyStart = i;
+								while (i < input.length && /\d/.test(input[i])) {
+									i++;
+								}
+								const key = parseInt(input.substring(keyStart, i));
+
+								// 寻找下一个数字或字符串结束
+								let valueEnd = input.length;
+								for (let j = i; j < input.length; j++) {
+									if (j < input.length - 1 && /\d/.test(input[j + 1])) {
+										valueEnd = j + 1;
+										break;
+									}
+
+									// // 提取值内容
+									// let value = input.substring(i, valueEnd).trim();
+
+									// // 处理括号内容
+									// const openParenIndex = value.indexOf('(');
+									// const closeParenIndex = value.indexOf(')');
+
+									// // 如果有完整的括号对
+									// if (openParenIndex !== -1 && closeParenIndex !== -1 && closeParenIndex > openParenIndex) {
+									//     // 提取括号内的内容
+									//     const parenContent = value.substring(openParenIndex + 1, closeParenIndex).trim();
+
+									//     // 如果有括号前的内容，也作为独立属性
+									//     const beforeParen = value.substring(0, openParenIndex).trim();
+
+									//     // 设置属性值
+									//     if (beforeParen) {
+									//         result[key] = beforeParen;
+									//         result[key + 1] = parenContent;
+									//     } else {
+									//         result[key] = value;
+									//     }
+									// } else {
+									//     result[key] = value;
+									// }
+									result[key] = value;
+
+									i = valueEnd - 1;
+								}
+							}
+						}
+						console.log('result- 333---', result)
+						return result;
+					},
 					capture(name, isSave, isFace) {
 
 						this.$nextTick(() => {
@@ -622,20 +838,50 @@
 						link.href = canvas.toDataURL()
 						link.click()
 					},
+					removeAllParentheses(str) {
+						let result = str;
+						let currentIndex = 0;
+
+						while (currentIndex < result.length) {
+							const openParen = result.indexOf('(', currentIndex);
+							if (openParen === -1) break;
+
+							const closeParen = result.indexOf(')', openParen);
+							if (closeParen === -1) break;
+
+							// 确保左括号前至少有一位字符
+							if (openParen > 0) {
+								const startIndex = openParen - 1;
+								const endIndex = closeParen + 1;
+
+								// 删除该片段
+								result = result.substring(0, startIndex) + result.substring(endIndex);
+								currentIndex = startIndex; // 重新从删除位置开始检查
+							} else {
+								currentIndex = openParen + 1;
+							}
+						}
+
+						return result;
+					},
 					smartStringToObject(str) {
-						const result = {};
-
+						let result = {};
 						// 去除所有标点符号（包括中文和英文标点）
-						const cleanedStr = str.replace(/[\s!"#$%&'*+,\-./:;<=>?@[\\\]^_`{|}~，。？！；：""''【】《》〈〉、…·]/g,
+						let cleanedStr = str.replace(/["#$%&'*+,\-./:;<=>?@[\\\]^_`{}~，。？；：""''【】《》〈〉、…·]/g,
 							'');
-
+						let result2 = this.extractFullSegments(cleanedStr);
+						result = {
+							...this.convertParenthesesArray(result2)
+						}
+						cleanedStr = this.removeAllParentheses(cleanedStr)
 						// 匹配数字后跟非数字字符的模式
-						const regex = /(\d+)\s*([^\d]+?)(?=\d|$)/g;
+						const regex = /(\d+)([^\d]+?)(?=\d|$)/g;
 						let match;
 
 						while ((match = regex.exec(cleanedStr)) !== null) {
 							const key = parseInt(match[1]);
-							const value = match[2].trim().replace(/\s+/g, '');
+							const value = match[2]
+							// const value = match[2].replace(/\s+/g, '');
 							result[key] = value;
 						}
 
@@ -741,18 +987,20 @@
 
 					getThemeImage(theme) {
 						const images = {
-							black: 'https://anii-1303089700.cos.ap-chengdu.myqcloud.com/xxjz/20251117/4ecfdeb0eeff477db9009abbdd01f9db-tmp_24e1d0e9d97cd05ab6627321f78665d3.jpg',
-							yellow: 'https://anii-1303089700.cos.ap-chengdu.myqcloud.com/xxjz/20250718/c54b57b88d9d4c61a67d65e21b4384b2-tmp_c471a05bb2d981953f1427cab24ca1cb.png',
-							orange: 'https://anii-1303089700.cos.ap-chengdu.myqcloud.com/xxjz/20250718/f29e8a4c1be14b19acb17cf4b2ea39fc-tmp_7bba77674a1ca9e49a4733de13849e10.png'
+							black: '',
+							yellow: 'huang',
+							orange: 'ju',
+							red: 'hong',
 						};
-						return images[theme];
+						return `https://anii-1303089700.cos.ap-chengdu.myqcloud.com/xxjz/hulu${images[theme]}${this.isCustom?'1':''}.png`;
 					},
 
 					getThemeAlt(theme) {
 						const alts = {
-							black: '黑色主题对应的城市夜景图片',
-							yellow: '黄色主题对应的向日葵花田图片',
-							orange: '橙色主题对应的日落美景图片'
+							black: '黑葫芦',
+							yellow: '黄葫芦',
+							orange: '橙葫芦',
+							red: '红葫芦'
 						};
 						return alts[theme];
 					},
@@ -761,7 +1009,8 @@
 						const names = {
 							black: '黑色',
 							yellow: '荧光黄',
-							orange: '橙色'
+							orange: '橙色',
+							red: '大红'
 						};
 						return names[theme];
 					}

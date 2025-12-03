@@ -504,6 +504,10 @@
 				top: 0;
 				z-index: 10;
 			}
+			.noShowSkuItem {
+			    transform: scale(0.9);
+			    transform-origin: center;
+				}
 		</style>
 	</head>
 	<body>
@@ -632,8 +636,12 @@
 				<van-switch v-model="useShopBack" />
 			</div>
 			<div class="formItem flexBtCenter">
-				<div class="name">显示规格名称</div>
+				<div class="name">显示店铺样式</div>
 				<van-switch v-model="showSku" />
+			</div>
+			<div class="formItem flexBtCenter">
+				<div class="name">显示规格名称</div>
+				<van-switch v-model="showSkuText" />
 			</div>
 			<div class="formItem flexBtCenter" v-if="showSku">
 				<div class="name">规格名称在侧面展示</div>
@@ -664,7 +672,7 @@
 					<div class="showItemWrap " :class="[isSkuRight?'skuInfoRightWrap':'','showItemWrap'+skuStyle]"
 						v-for="(tList,i) in chooseTextList" :key="index+'-'+i">
 						<div class="resultWrap whiteBack" :ref="'captureArea'+index+i">
-							<div class="showItem" :class="showSku?'showSkuItem':''">
+							<div class="showItem" :class="[showSku?'showSkuItem':'',!showSkuText?'noShowSkuItem':'']">
 								<img :src="item.imageUrl" crossOrigin="anonymous" class="productShowImg" alt="">
 								<div class="textIt" v-if="it.length"
 									:style="getStyle((item.productId+''+ti),it,tList,item)" v-for="(it,ti) in tList"
@@ -682,7 +690,7 @@
 								<div class="skuBorder" :class="showColor+'Border'">
 								</div>
 								<div class="skuWrap flexCenter"
-									:class="[skuStyle ==1 &&isSkuRight?(showColor+'LightBack ' +showColor):'',skuStyle ==3?(showColor+'Back white'):'']">
+									:class="[skuStyle ==1 &&isSkuRight?(showColor+'LightBack ' +showColor):'',skuStyle ==3?(showColor+'Back white'):'']" v-if="showSkuText">
 									<div class="skuText flexYCenter"
 										:class="skuStyle ==1 && !isSkuRight?(showColor+'Border'):''">
 										<span class="skuName"
@@ -708,10 +716,10 @@
 								<img :src="showPreviewImg" crossOrigin="anonymous" class="showPreviewImg" alt="">
 								<img :src="showPreviewImg" crossOrigin="anonymous" class="showPreviewImgShow" alt="">
 							</div>
-							<div class="textFixedItem" v-for="(styleItem,styleI) in styleShowList"
-								:style="styleItem.style" :class="styleItem.class">
-								{{styleItem.text}}
-							</div>
+								<div class="textFixedItem" v-for="(styleItem,styleI) in styleShowList"
+									:style="styleItem.style" :class="styleItem.class">
+									{{styleItem.text}}
+								</div>
 							<div class="textFixedImgItem" v-if="hasGift">
 								<img :src="giftIcon" class="giftIcon" alt="">
 								<img :src="giftImg" class="giftImg" alt="">
@@ -761,6 +769,7 @@
 					giftImg: '',
 					hasGift: false,
 					useShopBack: false,
+					showSkuText: false,
 					hasDIYText: true,
 					colorList: [{
 							label: '蓝色',
