@@ -6,6 +6,11 @@
 		<title>移动端文本识别工具</title>
 		<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+		<!-- 引入样式文件 -->
+		<link rel="stylesheet" href="https://unpkg.com/vant@2.12/lib/index.css" />
+
+		<!-- 引入 Vue 和 Vant 的 JS 文件 -->
+		<script src="https://unpkg.com/vant@2.12/lib/vant.min.js"></script>
 		<style>
 			* {
 				margin: 0;
@@ -249,6 +254,15 @@
 
 			.textList {}
 
+			.backImg {
+				position: absolute;
+				top: 0;
+				left: 0;
+				z-index: 10;
+				width: 100%;
+				height: 100%;
+			}
+
 			.textItem {
 				position: absolute;
 				z-index: 100;
@@ -397,6 +411,7 @@
 				transform: scale(1, 1.6);
 				line-height: 10px;
 			}
+
 			.textItem315,
 			.textItem316 {
 				font-size: 8px;
@@ -539,10 +554,10 @@
 						<span>内容请按照此格式输入：<br>1放过新郎2(525 121代表)3新郎专属|王牌吹瓶员4滴滴代喝
 							<br>区域中包含数字请用英文括号eg:2区 525 121代表请输入2(525 121代表)
 							<br>3区需要换行请使用“|” 进行分隔 换行
-						<button class="btn btn-primary" @click="copyUnit" :disabled="loading">
-							<i class="fas fa-copy"></i>
-							复制“|”
-						</button></span>
+							<button class="btn btn-primary" @click="copyUnit" :disabled="loading">
+								<i class="fas fa-copy"></i>
+								复制“|”
+							</button></span>
 					</div>
 
 					<div class="textarea-container">
@@ -570,10 +585,17 @@
 
 					<div class="theme-section">
 						<div class="flexBtCenter">
-						<h3 class="theme-title">颜色选择</h3>
-						<button class="btn btn-primary" @click="isCustom=!isCustom">
-							切换底图
-						</button>
+							<h3 class="theme-title">颜色选择</h3>
+							<div class="button-group">
+
+								<button class="btn btn-primary" @click="showSheet=!showSheet" v-if="shopList.length">
+									加水印
+								</button>
+								<button class="btn btn-primary" @click="isCustom=!isCustom">
+									切换底图
+								</button>
+							</div>
+							<van-action-sheet v-model="showSheet" :actions="actions" @select="onSelect" />
 						</div>
 						<div class="theme-options">
 							<div class="theme-option theme-black" :class="{ active: selectedTheme === 'black' }"
@@ -602,12 +624,15 @@
 							<!-- <transition name="fade" mode="out-in"> -->
 							<img :key="selectedTheme" :src="getThemeImage(selectedTheme)"
 								:alt="getThemeAlt(selectedTheme)">
+
+							<img v-if="shopInfo && isShowWatermark" :src="shopInfo.backImg" class="backImg">
 							<div class="textList">
 								<div class="textItem" :class="getClass(item,i)" v-for="(item,i) in processedResult"
 									:key="i" v-html="getText(item,i)"></div>
 							</div>
 						</div>
 						<div class="btn btnBot btn-primary" @click="capture">保存</div>
+						<div class="btn btnBot" @click="clearAll">清缓存</div>
 					</div>
 
 					<!-- <div class="result-section" v-if="processedResult">
@@ -632,6 +657,9 @@
 			new Vue({
 				el: '#app',
 				data: {
+					showSheet: false,
+					shopList: [],
+					actions: [],
 					inputText: '',
 					processedResult: null,
 					loading: false,
@@ -642,12 +670,59 @@
 						icon: ''
 					},
 					previewImg: '',
-					isCustom:true,
+					isCustom: true,
+					userId: null,
+					isShowWatermark: false,
+					shopInfo: null
 				},
 				mounted() {
-					this.showStatus('欢迎使用智能文本识别工具', 'info');
+					setTimeout(() => {
+						this.userId = getUrlParam('uid')
+						this.showStatus('欢迎使用智能文本识别工具', 'info');
+						this.getShopList()
+					}, 1200)
 				},
 				methods: {
+					clearAll() {
+						sessionStorage.removeItem('shopList')
+					},
+					getShopList() {
+						let list = sessionStorage.getItem('shopList')
+						console.log('data -product-list-', list)
+						if (list?.length) {
+							list = JSON.parse(list)
+							console.log('data -product-list-', list)
+							this.shopList = list
+							this.setAc()
+							return
+						}
+						get('shop/list').then(res => {
+							let data = res.data || []
+							this.shopList = data.filter(f => f.userId == this.userId && f.type == 1)
+							this.setAc()
+							sessionStorage.setItem('shopList', JSON.stringify(this.shopList))
+						})
+					},
+					setAc(){
+						this.actions = [
+							{
+								name:'不显示水印',
+								id:null,
+							},
+							...this.shopList
+						]
+					},
+					onSelect(item) {
+						// 默认情况下点击选项时不会自动收起
+						// 可以通过 close-on-click-action 属性开启自动收起
+						this.showSheet = false;
+						if(item.id){
+							this.shopInfo = item
+							this.isShowWatermark = true
+						}else{
+							this.isShowWatermark = false
+						}
+					},
 					copyUnit() {
 						navigator.clipboard.writeText('|')
 							.then(() => vant.Toast('复制成功'))
@@ -867,7 +942,7 @@
 					smartStringToObject(str) {
 						let result = {};
 						// 去除所有标点符号（包括中文和英文标点）
-						let cleanedStr = str.replace(/["#$%&'*+,\-./:;<=>?@[\\\]^_`{}~，。？；：""''【】《》〈〉、…·]/g,
+						let cleanedStr = str.replace(/["#$%&'*+\-./:;<=>@[\\\]^_`{}~。；：""''《》〈〉…·]/g,
 							'');
 						let result2 = this.extractFullSegments(cleanedStr);
 						result = {
