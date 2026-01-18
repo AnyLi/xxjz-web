@@ -429,16 +429,29 @@
 				font-size: 12px;
 			}
 
-			.textItem410 {
+			/* 黑葫芦后腰2 */
+			.textItem5 {
+				top: 213px;
+				left: 190px;
+				width: 123px;
+				height: 16px;
+				line-height: 16px;
+				font-size: 12px;
+			}
+
+			.textItem410,
+			.textItem510 {
 				transform: scale(0.9, 1);
 			}
 
-			.textItem411 {
+			.textItem411,
+			.textItem511 {
 				font-size: 11px;
 				transform: scale(0.9, 1);
 			}
 
-			.textItem412 {
+			.textItem412,
+			.textItem512 {
 				font-size: 10px;
 				transform: scale(0.9, 1);
 			}
@@ -554,10 +567,19 @@
 						<span>内容请按照此格式输入：<br>1放过新郎2(525 121代表)3新郎专属|王牌吹瓶员4滴滴代喝
 							<br>区域中包含数字请用英文括号eg:2区 525 121代表请输入2(525 121代表)
 							<br>3区需要换行请使用“|” 进行分隔 换行
-							<button class="btn btn-primary" @click="copyUnit" :disabled="loading">
-								<i class="fas fa-copy"></i>
-								复制“|”
-							</button></span>
+							<div class="flexYCenter">
+								<button class="btn btn-primary" @click="copyUnit('|')" :disabled="loading">
+									<i class="fas fa-copy"></i>
+									复制“|”
+								</button><button class="btn btn-primary" @click="copyUnit('(')" :disabled="loading">
+									<i class="fas fa-copy"></i>
+									复制“(”
+								</button><button class="btn btn-primary" @click="copyUnit(')')" :disabled="loading">
+									<i class="fas fa-copy"></i>
+									复制“)”
+								</button>
+							</div>
+						</span>
 					</div>
 
 					<div class="textarea-container">
@@ -569,6 +591,9 @@
 					</div>
 
 					<div class="button-group">
+						<button class="btn btn-secondary" @click="clearText" :disabled="loading">
+							清空
+						</button>
 						<button class="btn btn-secondary" @click="pasteFromClipboard" :disabled="loading">
 							<i class="fas fa-paste"></i>
 							粘贴
@@ -703,11 +728,10 @@
 							sessionStorage.setItem('shopList', JSON.stringify(this.shopList))
 						})
 					},
-					setAc(){
-						this.actions = [
-							{
-								name:'不显示水印',
-								id:null,
+					setAc() {
+						this.actions = [{
+								name: '不显示水印',
+								id: null,
 							},
 							...this.shopList
 						]
@@ -716,15 +740,15 @@
 						// 默认情况下点击选项时不会自动收起
 						// 可以通过 close-on-click-action 属性开启自动收起
 						this.showSheet = false;
-						if(item.id){
+						if (item.id) {
 							this.shopInfo = item
 							this.isShowWatermark = true
-						}else{
+						} else {
 							this.isShowWatermark = false
 						}
 					},
-					copyUnit() {
-						navigator.clipboard.writeText('|')
+					copyUnit(t) {
+						navigator.clipboard.writeText(t)
 							.then(() => vant.Toast('复制成功'))
 							.catch(err => console.error("复制失败", err));
 					},
@@ -956,9 +980,18 @@
 						while ((match = regex.exec(cleanedStr)) !== null) {
 							const key = parseInt(match[1]);
 							const value = match[2]
+							console.log('key ---',key)
+							console.log('value ---',value)
 							// const value = match[2].replace(/\s+/g, '');
-							result[key] = value;
+							let k =String(key)
+							if(k.length>1){
+								result[k[0]] = value;
+								result[k[1]] = value;
+							}else{
+								result[key] = value;
+							}
 						}
+						// if(result)
 
 						return result;
 					},
@@ -984,7 +1017,10 @@
 							};
 						}, 3000);
 					},
-
+					clearText() {
+						this.inputText = ''
+						this.processedResult = null
+					},
 					async pasteFromClipboard() {
 						this.loading = true;
 						this.showStatus('正在读取剪贴板内容...', 'info');

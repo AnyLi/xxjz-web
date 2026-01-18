@@ -504,10 +504,23 @@
 				top: 0;
 				z-index: 10;
 			}
+
 			.noShowSkuItem {
-			    transform: scale(0.9);
-			    transform-origin: center;
-				}
+				transform: scale(0.9);
+				transform-origin: center;
+			}
+
+			.darkblue {
+				color: #104192;
+			}
+
+			.darkblueBack {
+				background: #104192;
+			}
+
+			.darkblueBorder {
+				border-color: #104192 !important;
+			}
 		</style>
 	</head>
 	<body>
@@ -690,7 +703,8 @@
 								<div class="skuBorder" :class="showColor+'Border'">
 								</div>
 								<div class="skuWrap flexCenter"
-									:class="[skuStyle ==1 &&isSkuRight?(showColor+'LightBack ' +showColor):'',skuStyle ==3?(showColor+'Back white'):'']" v-if="showSkuText">
+									:class="[skuStyle ==1 &&isSkuRight?(showColor+'LightBack ' +showColor):'',skuStyle ==3?(showColor+'Back white'):'']"
+									v-if="showSkuText">
 									<div class="skuText flexYCenter"
 										:class="skuStyle ==1 && !isSkuRight?(showColor+'Border'):''">
 										<span class="skuName"
@@ -716,10 +730,10 @@
 								<img :src="showPreviewImg" crossOrigin="anonymous" class="showPreviewImg" alt="">
 								<img :src="showPreviewImg" crossOrigin="anonymous" class="showPreviewImgShow" alt="">
 							</div>
-								<div class="textFixedItem" v-for="(styleItem,styleI) in styleShowList"
-									:style="styleItem.style" :class="styleItem.class">
-									{{styleItem.text}}
-								</div>
+							<div class="textFixedItem" v-for="(styleItem,styleI) in styleShowList"
+								:style="styleItem.style" :class="styleItem.class">
+								{{styleItem.text}}
+							</div>
 							<div class="textFixedImgItem" v-if="hasGift">
 								<img :src="giftIcon" class="giftIcon" alt="">
 								<img :src="giftImg" class="giftImg" alt="">
@@ -774,6 +788,9 @@
 					colorList: [{
 							label: '蓝色',
 							color: 'blue',
+						}, {
+							label: '深蓝色',
+							color: 'darkblue',
 						},
 						{
 							label: '橘色',
