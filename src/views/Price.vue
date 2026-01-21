@@ -159,22 +159,116 @@ export default {
 
 <style scoped>
 .price-page {
-  padding: 10px;
+  padding: 20px;
+  background: #f0f2f5;
+  min-height: calc(100vh - 60px);
 }
 
-.el-card__body,
-.el-main {
-  padding: 10px !important;
+.main-card {
+  border-radius: 8px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-icon {
+  font-size: 20px;
+  color: #409eff;
+  margin-right: 10px;
+}
+
+.header-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.table-card {
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.table-card :deep(.el-card__header) {
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ed 100%);
+  border-bottom: 1px solid #ebeef5;
+}
+
+.table-card :deep(.el-card__body) {
+  padding: 12px;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.table-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #606266;
+}
+
+.price-input-wrapper {
+  display: flex;
+  align-items: center;
+  background: #f5f7fa;
+  border-radius: 4px;
+  padding: 4px 8px;
+  border: 1px solid #dcdfe6;
+  transition: all 0.3s;
+}
+
+.price-input-wrapper:hover {
+  border-color: #c0c4cc;
+}
+
+.price-input-wrapper:focus-within {
+  border-color: #409eff;
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+}
+
+.price-prefix {
+  color: #909399;
+  font-size: 14px;
+  margin-right: 4px;
 }
 
 .price-input {
   border: none;
-  padding: 0 10px;
-  width: 100%;
-  background: #f5f5f5;
+  background: transparent;
+  width: 70px;
+  font-size: 14px;
+  color: #303133;
+  text-align: right;
 }
 
 .price-input:focus {
   outline: none;
+}
+
+.price-input::-webkit-inner-spin-button,
+.price-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* 表格斑马纹优化 */
+:deep(.el-table--striped .el-table__body tr.el-table__row--striped td) {
+  background: #fafbfc;
+}
+
+/* 表格悬停效果 */
+:deep(.el-table__body tr:hover > td) {
+  background-color: #ecf5ff !important;
 }
 </style>
