@@ -1,0 +1,549 @@
+/* 基础公共样式 */
+body {
+	background-color: #f3f3f3;
+	color: #333;
+}
+
+*,
+div,
+input,
+textarea {
+	box-sizing: border-box;
+}
+
+img {
+	width: 100%;
+	height: 100%;
+}
+
+.main {
+	color: #409EFF
+}
+
+.mainBorder {
+	border-color: #409EFF !important;
+}
+
+.mainBack {
+	background: #409EFF;
+}
+
+.mainLightBack {
+	background: #409EFF22;
+}
+
+
+.red {
+	color: #F66960 !important
+}
+
+.redBorder {
+	border-color: #F66960 !important;
+}
+
+.redBack {
+	background: #F66960 !important;
+}
+
+.redLightBack {
+	background: rgba(246, 105, 96, 0.1) !important;
+}
+
+.darkred {
+	color: #EB190B !important
+}
+
+.darkredBorder {
+	border-color: #EB190B !important;
+}
+
+.darkredBack {
+	background: #EB190B !important;
+}
+
+.darkredLightBack {
+	background: rgba(235, 25, 11, 0.1) !important;
+}
+
+.blue {
+	color: #5493FB !important
+}
+
+.blueBorder {
+	border-color: #5493FB !important;
+}
+
+.blueBack {
+	background: #5493FB !important;
+}
+
+.blueLightBack {
+	background: rgba(84, 147, 251, 0.1) !important;
+}
+
+.green {
+	color: #07BD08 !important
+}
+
+.greenBorder {
+	border-color: #07BD08 !important;
+}
+
+.greenBack {
+	background: #07BD08 !important;
+}
+
+.greenLightBack {
+	background: rgba(7, 189, 8, 0.1) !important;
+}
+.lightgreen {
+	color: #A3CF3C !important
+}
+
+.lightgreenBorder {
+	border-color: #A3CF3C !important;
+}
+
+.lightgreenBack {
+	background: #A3CF3C !important;
+}
+
+.lightgreenLightBack {
+	background: rgba(163, 207, 60, 0.1) !important;
+}
+
+.yellow {
+	color: #ffd21e !important
+}
+
+.yellowBorder {
+	border-color: #ffd21e !important;
+}
+
+.yellowBack {
+	background: #ffd21e !important;
+}
+
+.yellowLightBack {
+	background: rgba(255, 210, 30, 0.1) !important;
+}
+
+.orange {
+	color: #ff8500 !important
+}
+
+.orangeBorder {
+	border-color: #ff8500 !important;
+}
+
+.orangeBack {
+	background: #ff8500 !important;
+}
+
+.orangeLightBack {
+	background: rgba(255, 133, 0, 0.1) !important;
+}
+
+.purple {
+	color: #8866DA !important
+}
+
+.purpleBorder {
+	border-color: #8866DA !important;
+}
+
+.purpleBack {
+	background: #8866DA !important;
+}
+
+.purpleLightBack {
+	background: rgba(136, 102, 218, 0.1) !important;
+}
+
+.black {
+	color: #000000 !important
+}
+
+.blackBorder {
+	border-color: #000000 !important;
+}
+
+.blackBack {
+	background: #000000 !important;
+}
+
+.white {
+	color: #fff !important
+}
+
+.whiteBorder {
+	border-color: #fff !important;
+}
+
+.whiteBack {
+	background: #fff !important;
+}
+
+.gray {
+	color: #999 !important
+}
+
+.darkgray {
+	color: #666 !important
+}
+
+.lightgray {
+	color: #e3e3e3 !important
+}
+
+.grayBorder999 {
+	border-color: #999 !important;
+}
+
+.grayBorder {
+	border-color: #F7F8FA !important;
+}
+
+.darkgrayBorder {
+	border-color: #e3e3e3 !important;
+}
+
+.lightgrayBorder {
+	border-color: #f7f7f7 !important;
+}
+
+.grayBack {
+	background: #e3e3e3 !important;
+}
+
+.grayBack999 {
+	background: #999 !important;
+}
+
+.darkgrayBack {
+	background: #ccc !important;
+}
+
+.lightgrayBack {
+	background: #F7F8FA !important;
+}
+
+.vlightgrayBack {
+	background: #f7f7f7 !important;
+}
+
+.noMarginTop {
+	margin-top: 0 !important;
+}
+
+.noMarginLeft {
+	margin-left: 0 !important;
+}
+
+.noMarginRight {
+	margin-right: 0 !important;
+}
+
+.noBorderLeft {
+	border-left: 0 !important;
+}
+
+.bd {
+	border: 1px solid;
+}
+
+.bdt {
+	border-top: 1px solid;
+}
+
+.bdb {
+	border-bottom: 1px solid;
+}
+
+.bdl {
+	border-left: 1px solid;
+}
+
+.bdr {
+	border-right: 1px solid;
+}
+
+.bdn {
+	border: none !important;
+}
+
+.bdrds5 {
+	border-radius: 5px;
+}
+
+.bdrds10 {
+	border-radius: 10px;
+}
+
+.bdrds15 {
+	border-radius: 15px;
+}
+
+.bdrds20 {
+	border-radius: 20px;
+}
+
+.flex {
+	display: flex;
+}
+
+.flexWrap {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.flexCenter {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.flexXCenter {
+	display: flex;
+	justify-content: center;
+}
+
+.flexYCenter {
+	display: flex;
+	align-items: center;
+}
+
+.flexYEnd {
+	display: flex;
+	align-items: flex-end;
+}
+
+.flexXEnd {
+	display: flex;
+	justify-content: flex-end;
+}
+
+.flexBt {
+	display: flex;
+	justify-content: space-between;
+}
+
+.flexAr {
+	display: flex;
+	justify-content: space-around;
+}
+
+
+.flexBtCenter {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.flexArCenter {
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+}
+
+.flexEndCenter {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+}
+
+.flexBase {
+	display: flex;
+	align-items: baseline;
+}
+
+.flex1 {
+	flex: 1;
+}
+
+.flexColumnCenter {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.center {
+	text-align: center !important;
+}
+
+.right {
+	text-align: right !important;
+}
+
+.normal {
+	font-weight: normal !important;
+}
+
+.bold {
+	font-weight: bold !important;
+}
+
+.italic {
+	font-style: italic !important;
+}
+
+.clamp1 {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 1;
+	overflow: hidden;
+	word-break: break-word;
+}
+
+.clamp2 {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+	word-break: break-word;
+}
+
+.clamp3 {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 3;
+	overflow: hidden;
+	word-break: break-word;
+}
+
+/* 浮动按钮 */
+.addWrap {
+	border-radius: 50%;
+	width: 130px;
+	height: 130px;
+	padding: 40px;
+	box-shadow: 0 0 10px 10px rgba(0, 0, 0, 0.02);
+}
+
+.fixedBtn {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	font-size: 32px;
+	text-align: center;
+	z-index: 10;
+	padding: 30px;
+	height: max-content !important;
+	line-height: normal !important;
+	padding-bottom: calc(constant(safe-area-inset-bottom) + 30px);
+	padding-bottom: calc(env(safe-area-inset-bottom) + 30px);
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+    outline: none;
+    cursor: pointer;
+}
+
+/* 按钮样式 */
+.button {
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	padding: 1em 0em 1em 1em;
+	background-color: #F5BB70;
+	cursor: pointer;
+	box-shadow: 4px 6px 0px black;
+	border: 4px solid;
+	border-radius: 15px;
+	position: relative;
+	overflow: hidden;
+	z-index: 100;
+	transition: box-shadow 250ms, transform 250ms, filter 50ms;
+}
+
+.button:hover {
+	transform: translate(2px, 2px);
+	box-shadow: 2px 3px 0px black;
+}
+
+.button:active {
+	filter: saturate(0.75);
+}
+
+.button::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-color: #064060;
+	z-index: -1;
+	transform: translateX(-100%);
+	transition: transform 250ms;
+}
+
+.button:hover::after {
+	transform: translateX(0);
+}
+
+.bgContainer {
+	position: relative;
+	display: flex;
+	justify-content: start;
+	align-items: center;
+	overflow: hidden;
+	max-width: 40%;
+	font-size: 2em;
+	font-weight: 600;
+}
+
+.bgContainer span {
+	position: relative;
+	transform: translateX(-100%);
+	transition: all 250ms;
+}
+
+.button:hover .bgContainer>span {
+	transform: translateX(-67px);
+	color: #F5BB70;
+}
+
+.arrowContainer {
+	padding: 1em;
+	margin-inline-end: 1em;
+	border: 4px solid;
+	border-radius: 50%;
+	background-color: #064060;
+	position: relative;
+	overflow: hidden;
+	transition: transform 250ms, background-color 250ms;
+	z-index: 100;
+}
+
+.arrowContainer::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	background-color: #F5BB70;
+	transform: translateX(-100%);
+	z-index: -1;
+	transition: transform 250ms ease-in-out;
+}
+
+.button:hover .arrowContainer::after {
+	transform: translateX(0);
+}
+
+.button:hover .arrowContainer {
+	transform: translateX(5px);
+}
+
+.button:active .arrowContainer {
+	transform: translateX(8px);
+}
+
+.arrowContainer svg {
+	vertical-align: middle;
+}
+
+a+a {
+	margin-left: 30px;
+}
