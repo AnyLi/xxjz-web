@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>价格表</title>
+		<link rel="icon" href="../favicon.ico" type="image/x-icon">
+		<style>
+			* {
+				padding: 0;
+				margin: 0;
+				box-sizing: border-box;
+			}
+
+			.none {
+				display: none;
+			}
+
+			.page {
+				display: block;
+			}
+
+			.el-card__body,
+			.el-main {
+				padding: 10px !important;
+			}
+
+
+			input {
+				border: none;
+				padding: 0 10px;
+				width: 100%;
+			}
+
+			.tableData {
+				height: calc(100vh - 200px);
+				padding: 20px;
+			}
+
+			.pages {
+				padding: 20px;
+			}
+
+			/* 可自定义表格样式 */
+			.el-table {
+				--el-table-header-text-color: #333;
+				--el-table-row-hover-bg-color: #f8f9fa;
+			}
+			.upload-xls-btn{
+				margin-right: 20px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app" class="none" :class="loaded?'page':''">
+			<el-card class="box-card">
+				<el-form :inline="true" :model="formInline" class="demo-form-inline">
+					<!-- <el-form-item label="审批人">
+						<el-input v-model="formInline.user" placeholder="审批人"></el-input>
+					</el-form-item>
+					<el-form-item label="活动区域">
+						<el-select v-model="formInline.region" placeholder="活动区域">
+							<el-option label="区域一" value="shanghai"></el-option>
+							<el-option label="区域二" value="beijing"></el-option>
+						</el-select>
+					</el-form-item> -->
+					<el-form-item>
+						<div class="flexYCenter">
+							<el-upload class="upload-xls-btn" :action="baseURL+'waybillSettlement/import2'"
+								:headers="uploadHeaders" :file-list="fileList" :before-upload="beforeUpload"
+								:on-success="handleSuccess" :on-error="handleError" :on-progress="handleProgress"
+								:on-remove="handleRemove" :limit="1" :on-exceed="handleExceed" accept=".xls,.xlsx">
+								<el-button type="primary">上传物流账单</el-button>
+							</el-upload>
+							<el-upload class="upload-xls-btn" :action="baseURL+'waybillSettlement/import'"
+								:headers="uploadHeaders" :file-list="fileList" :before-upload="beforeUpload"
+								:on-success="handleSuccess" :on-error="handleError" :on-progress="handleProgress"
+								:on-remove="handleRemove" :limit="1" :on-exceed="handleExceed" accept=".xls,.xlsx">
+								<el-button type="primary">上传查询单号</el-button>
+							</el-upload>
+						</div>
+					</el-form-item>
+				</el-form>
+			</el-card>
+			<div class="tableData">
+				<template>
+					<el-table :data="tableData" border stripe style="width: 100%;"
+						:default-sort="{prop: 'create_time', order: 'descending'}">
+						<!-- 主键（可隐藏，按需显示） -->
+						<el-table-column prop="id" label="主键" width="80" align="center">
+						</el-table-column>
+
+						<!-- 运单号（核心字段，加宽） -->
+						<el-table-column prop="waybill_no" label="运单号" width="180" align="center">
+						</el-table-column>
+
+						<!-- 账单日期（日期类型） -->
+						<el-table-column prop="bill_date" label="账单日期" width="120" align="center">
+							<template slot-scope="scope">
+								{{ scope.row.bill_date ? scope.row.bill_date : '-' }}
+							</template>
+						</el-table-column>
+
+						<!-- 扫描时间（时间戳类型） -->
+						<el-table-column prop="scan_time" label="扫描时间" width="200" align="center">
+							<template slot-scope="scope">
+								{{ scope.row.scan_time ? scope.row.scan_time : '-' }}
+							</template>
+						</el-table-column>
+
+						<!-- 面单账号名称 -->
+						<el-table-column prop="face_bill_no" label="面单账号名称" width="150" align="center">
+						</el-table-column>
+
+						<!-- 结算对象 -->
+						<el-table-column prop="settlement_object" label="结算对象" width="120" align="center">
+						</el-table-column>
+
+						<!-- 目的省 -->
+						<el-table-column prop="dest_province" label="目的省" width="100" align="center">
+						</el-table-column>
+
+						<!-- 目的市 -->
+						<el-table-column prop="dest_city" label="目的市" width="100" align="center">
+						</el-table-column>
+
+						<!-- 结算重量（数字保留3位小数） -->
+						<el-table-column prop="settlement_weight" label="结算重量" width="120" align="right">
+							<template slot-scope="scope">
+								{{ scope.row.settlement_weight ? scope.row.settlement_weight.toFixed(3) : '0.000' }}
+							</template>
+						</el-table-column>
+
+						<!-- 客户快递费（应计） -->
+						<el-table-column prop="customer_express_fee" label="客户快递费（应计）" width="140" align="right">
+							<template slot-scope="scope">
+								{{ scope.row.customer_express_fee ? scope.row.customer_express_fee.toFixed(2) : '0.00' }}
+							</template>
+						</el-table-column>
+
+						<!-- 预付面单 -->
+						<el-table-column prop="prepaid_amount" label="预付面单" width="100" align="right">
+							<template slot-scope="scope">
+								{{ scope.row.prepaid_amount ? scope.row.prepaid_amount.toFixed(2) : '0.00' }}
+							</template>
+						</el-table-column>
+
+						<!-- 客户应补运费 -->
+						<el-table-column prop="customer_pay_freight" label="客户应补运费" width="120" align="right">
+							<template slot-scope="scope">
+								{{ scope.row.customer_pay_freight ? scope.row.customer_pay_freight.toFixed(2) : '0.00' }}
+							</template>
+						</el-table-column>
+
+						<!-- 转件费 -->
+						<el-table-column prop="transfer_fee" label="转件费" width="100" align="right">
+							<template slot-scope="scope">
+								{{ scope.row.transfer_fee ? scope.row.transfer_fee.toFixed(2) : '0.00' }}
+							</template>
+						</el-table-column>
+
+						<!-- 不规范罚款 -->
+						<el-table-column prop="irregular_penalty" label="不规范罚款" width="120" align="right">
+							<template slot-scope="scope">
+								{{ scope.row.irregular_penalty ? scope.row.irregular_penalty.toFixed(2) : '0.00' }}
+							</template>
+						</el-table-column>
+
+						<!-- 客户应付合计金额 -->
+						<el-table-column prop="customer_pay_total" label="客户应付合计金额" width="140" align="right">
+							<template slot-scope="scope">
+								{{ scope.row.customer_pay_total ? scope.row.customer_pay_total.toFixed(2) : '0.00' }}
+							</template>
+						</el-table-column>
+
+						<!-- 运单发放 -->
+						<el-table-column prop="shipment" label="运单发放" width="120" align="center">
+						</el-table-column>
+
+						<!-- 寄件人 -->
+						<el-table-column prop="sender" label="寄件人" width="100" align="center">
+						</el-table-column>
+
+						<!-- 售后原因（长文本，自适应宽度） -->
+						<el-table-column prop="after_sale_reason" label="售后原因" min-width="180" align="center">
+						</el-table-column>
+
+						<!-- 售后金额 -->
+						<el-table-column prop="after_sale_amount" label="售后金额" width="100" align="right">
+							<template slot-scope="scope">
+								{{ scope.row.after_sale_amount ? scope.row.after_sale_amount.toFixed(2) : '0.00' }}
+							</template>
+						</el-table-column>
+
+						<!-- 是否有订单（格式化显示） -->
+						<el-table-column prop="has_order" label="是否有订单" width="100" align="center">
+							<template slot-scope="scope">
+								{{ scope.row.has_order === '1' ? '有' : '没有' }}
+							</template>
+						</el-table-column>
+
+						<!-- 实际发货人 -->
+						<el-table-column prop="user_id" label="实际发货人ID" width="100" align="center">
+						</el-table-column>
+
+						<!-- 实际发货人名称 -->
+						<el-table-column prop="user_name" label="实际发货人名称" width="120" align="center">
+						</el-table-column>
+
+						<!-- 备注（长文本，自适应宽度） -->
+						<el-table-column prop="remark" label="备注" min-width="180" align="center">
+						</el-table-column>
+
+						<!-- 创建时间 -->
+						<el-table-column prop="create_time" label="创建时间" width="200" align="center">
+							<template slot-scope="scope">
+								{{ scope.row.create_time ? scope.row.create_time : '-' }}
+							</template>
+						</el-table-column>
+
+						<!-- 更新时间 -->
+						<el-table-column prop="update_time" label="更新时间" width="200" align="center">
+							<template slot-scope="scope">
+								{{ scope.row.update_time ? scope.row.update_time : '-' }}
+							</template>
+						</el-table-column>
+
+						<!-- 操作列（按需添加） -->
+						<el-table-column label="操作" width="180" align="center">
+							<template slot-scope="scope">
+								<el-button size="mini" type="primary">查看</el-button>
+								<el-button size="mini" type="warning">编辑</el-button>
+								<el-button size="mini" type="danger">删除</el-button>
+							</template>
+						</el-table-column>
+					</el-table>
+				</template>
+
+			</div>
+			<div class="pages flexXEnd">
+				<el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+					:current-page="currentPage" :page-sizes="[100, 200, 300, 400]" :page-size="100"
+					layout="total, sizes, prev, pager, next, jumper" :total="400">
+				</el-pagination>
+			</div>
+		</div>
+	</body>
+	<script src="../js/main.js"></script>
+	<script>
+		setTimeout(() => {
+			new Vue({
+				el: '#app',
+				data: function() {
+					return {
+						baseURL,
+						loaded: false,
+						tableData: [],
+						formInline: {
+							user: '',
+							region: ''
+						},
+						currentPage: 1,
+						fileList: [], // 已选择的文件列表
+						uploadPercent: 0, // 上传进度百分比
+						uploadHeaders: { // 上传请求头（按需添加token）
+							// Authorization: 'Bearer ' + localStorage.getItem('token')
+							"sign": getUrlParam('sign') || sessionStorage.getItem('sign')
+						},
+						// 上传结果提示
+						uploadResult: {
+							show: false,
+							msg: '',
+							type: 'success' // success/warning/error
+						},
+						params: {
+							pageNo: 1,
+							pageSize: 1000,
+							waybillNo: null,
+							billDateStr: '',
+							userId: null
+						}
+					}
+				},
+				mounted() {
+					this.loaded = true
+					this.uploadHeaders = { // 上传请求头（按需添加token）
+						// Authorization: 'Bearer ' + localStorage.getItem('token')
+						"sign": getUrlParam('sign') || sessionStorage.getItem('sign')
+					}
+					console.log('uploadHeaders ----', this.uploadHeaders)
+					// Promise.all([this.getProductList(), this.getMerchantList()]).then(res => {
+					this.getList()
+					// })
+				},
+				computed: {},
+				methods: {
+					// 上传前校验（文件格式、大小）
+					beforeUpload(file) {
+						// 1. 校验文件格式
+						const isXls = file.type === 'application/vnd.ms-excel' ||
+							file.type ===
+							'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+							file.name.endsWith('.xls') ||
+							file.name.endsWith('.xlsx');
+						if (!isXls) {
+							this.$message.error('请上传 .xls 或 .xlsx 格式的表格文件！');
+							return false; // 阻止上传
+						}
+
+						// 2. 校验文件大小（10MB）
+						const isLt10M = file.size / 1024 / 1024 < 10;
+						if (!isLt10M) {
+							this.$message.error('文件大小不能超过 10MB！');
+							return false; // 阻止上传
+						}
+
+						// 3. 重置进度和结果提示
+						this.uploadPercent = 0;
+						this.uploadResult.show = false;
+						return true; // 允许上传
+					},
+
+					// 上传进度回调
+					handleProgress(event, file, fileList) {
+						this.uploadPercent = Math.round(event.percent);
+					},
+
+					// 上传成功回调
+					handleSuccess(response, file, fileList) {
+						this.uploadPercent = 100;
+						// 后端返回格式建议：{code:200, msg:"上传成功", data:{}}
+						if (response.code === 200) {
+							this.uploadResult = {
+								show: true,
+								msg: `文件 ${file.name} 上传成功！${response.msg || ''}`,
+								type: 'success'
+							};
+							this.$message.success(this.uploadResult.msg);
+							// 可选：上传成功后刷新表格/处理数据
+							// this.$emit('uploadSuccess', response.data);
+						} else {
+							this.uploadResult = {
+								show: true,
+								msg: `文件上传失败：${response.msg || '服务器异常'}`,
+								type: 'error'
+							};
+							this.$message.error(this.uploadResult.msg);
+						}
+					},
+
+					// 上传失败回调
+					handleError(error, file, fileList) {
+						this.uploadResult = {
+							show: true,
+							msg: `文件 ${file.name} 上传失败：${error.message || '网络异常'}`,
+							type: 'error'
+						};
+						this.$message.error(this.uploadResult.msg);
+						this.uploadPercent = 0;
+					},
+
+					// 移除文件回调
+					handleRemove(file, fileList) {
+						this.fileList = fileList;
+						this.uploadPercent = 0;
+						this.uploadResult.show = false;
+						this.$message.info(`已移除文件 ${file.name}`);
+					},
+
+					// 超出文件数量限制回调
+					handleExceed(files, fileList) {
+						this.$message.warning(`最多只能上传 1 个表格文件，请先移除已选择的文件`);
+					},
+
+					// 下载表格模板（示例）
+					downloadTemplate() {
+						// 替换为你的模板下载接口
+						axios({
+							url: '/api/download/xls/template',
+							method: 'GET',
+							responseType: 'blob' // 重要：处理二进制文件
+						}).then(res => {
+							// 创建下载链接
+							const blob = new Blob([res.data]);
+							const downloadUrl = window.URL.createObjectURL(blob);
+							const a = document.createElement('a');
+							a.href = downloadUrl;
+							a.download = '运单结算表模板.xlsx'; // 模板文件名
+							a.click();
+							// 释放URL对象
+							window.URL.revokeObjectURL(downloadUrl);
+							this.$message.success('模板下载成功！');
+						}).catch(error => {
+							this.$message.error('模板下载失败：' + error.message);
+						});
+					},
+					handleRemove(file, fileList) {
+						console.log(file, fileList);
+					},
+					handlePreview(file) {
+						console.log(file);
+					},
+					handleExceed(files, fileList) {
+						this.$message.warning(
+							`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`
+						);
+					},
+					beforeRemove(file, fileList) {
+						return this.$confirm(`确定移除 ${ file.name }？`);
+					},
+					uploadLogistics() {
+						post('/waybillSettlement/import2', {
+							file: ''
+						}).then(res => {
+							this.merchantList = res.data
+						}).catch(err => {});
+					},
+					handleSizeChange(val) {
+						console.log(`每页 ${val} 条`);
+					},
+					handleCurrentChange(val) {
+						console.log(`当前页: ${val}`);
+					},
+					onSubmit() {
+						console.log('submit!');
+					},
+					submit() {
+						post('priceSetting/batchSaveOrUpdate', {
+							priceList: [...this.tableData1, ...this.tableData2]
+						}).then(res => {
+							vant.Toast('更新成功')
+						}).catch(err => {});
+					},
+					getList() {
+						get('waybillSettlement/page', this.params).then(res => {
+							this.tableData = res.data
+						}).catch(err => {});
+					},
+					getProductList() {
+						get('product/list').then(res => {
+							this.productList = res.data
+						}).catch(err => {});
+					},
+					getMerchantList() {
+						get('merchant/list').then(res => {
+							this.merchantList = res.data
+						}).catch(err => {});
+					},
+					formatPrice(row, column, cellValue) {
+						return '¥' + cellValue.toFixed(2)
+					},
+					formatName(row, column, cellValue) {
+						return this.productList.find(f => f.id == cellValue)?.name
+					},
+					formatName2(row, column, cellValue) {
+						return this.merchantList.find(f => f.id == cellValue)?.name
+					},
+					handleEdit(index, row) {
+						console.log(index, row)
+					},
+					handleDelete(index, row) {
+						console.log(index, row)
+					},
+					handleSelectionChange(val) {
+						this.multipleSelection = val
+					}
+
+				}
+			})
+		}, 1500)
+	</script>
+</html>
