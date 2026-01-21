@@ -6,9 +6,64 @@
           <i class="el-icon-price-tag header-icon"></i>
           <span class="header-title">价格表</span>
         </div>
-        <el-button type="primary" size="small" icon="el-icon-check" @click="submit">
-          确认修改
-        </el-button>
+        <div class="header-right">
+          <el-button size="small" icon="el-icon-back" @click="$router.push('/')">
+            返回主页
+          </el-button>
+          <el-button type="primary" size="small" icon="el-icon-check" @click="submit">
+            确认修改
+          </el-button>
+        </div>
+      </div>
+
+      <!-- 筛选区域 -->
+      <div class="filter-section">
+        <el-form :inline="true" :model="filterForm" class="filter-form">
+          <el-form-item label="产品">
+            <el-select v-model="filterForm.productId" placeholder="全部产品" clearable size="small">
+              <el-option
+                v-for="item in productList"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="颜色">
+            <el-select v-model="filterForm.colorName" placeholder="全部颜色" clearable size="small" filterable>
+              <el-option
+                v-for="item in colorList"
+                :key="item"
+                :label="item"
+                :value="item">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="款式">
+            <el-select v-model="filterForm.styleName" placeholder="全部款式" clearable size="small">
+              <el-option
+                v-for="item in styleList"
+                :key="item"
+                :label="item"
+                :value="item">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="尺码">
+            <el-select v-model="filterForm.sizeStr" placeholder="全部尺码" clearable size="small">
+              <el-option
+                v-for="item in sizeList"
+                :key="item"
+                :label="item"
+                :value="item">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" size="small" icon="el-icon-search" @click="handleFilter">筛选</el-button>
+            <el-button size="small" icon="el-icon-refresh" @click="resetFilter">重置</el-button>
+          </el-form-item>
+        </el-form>
       </div>
 
       <el-row :gutter="20">
@@ -16,10 +71,10 @@
           <el-card class="table-card" shadow="never">
             <div slot="header" class="table-header">
               <span class="table-title">商家一</span>
-              <el-tag size="small" type="success">{{ tableData1.length }} 条记录</el-tag>
+              <el-tag size="small" type="success">{{ filteredData1.length }} 条记录</el-tag>
             </div>
             <el-table
-              :data="tableData1"
+              :data="filteredData1"
               border
               stripe
               size="small"
@@ -49,10 +104,10 @@
           <el-card class="table-card" shadow="never">
             <div slot="header" class="table-header">
               <span class="table-title">其他商家</span>
-              <el-tag size="small" type="info">{{ tableData2.length }} 条记录</el-tag>
+              <el-tag size="small" type="info">{{ filteredData2.length }} 条记录</el-tag>
             </div>
             <el-table
-              :data="tableData2"
+              :data="filteredData2"
               border
               stripe
               size="small"
@@ -84,6 +139,7 @@
 
 <script>
 import { get, post } from '@/api/request'
+import { colorList, styleList, sizeList } from '@/utils/dict'
 
 export default {
   name: 'Price',
@@ -92,9 +148,20 @@ export default {
       tableData: [],
       tableData1: [],
       tableData2: [],
+      filteredData1: [],
+      filteredData2: [],
       productList: [],
       merchantList: [],
-      multipleSelection: []
+      multipleSelection: [],
+      colorList,
+      styleList,
+      sizeList,
+      filterForm: {
+        productId: '',
+        colorName: '',
+        styleName: '',
+        sizeStr: ''
+      }
     }
   },
   mounted() {
@@ -117,9 +184,31 @@ export default {
         this.tableData = res.data
         this.tableData1 = this.tableData.filter(f => f.clotheMerchantId == 13)
         this.tableData2 = this.tableData.filter(f => f.clotheMerchantId != 13)
+        this.handleFilter()
       }).catch(err => {
         console.error(err)
       })
+    },
+    handleFilter() {
+      const { productId, colorName, styleName, sizeStr } = this.filterForm
+      const filterFn = (item) => {
+        if (productId && item.productId != productId) return false
+        if (colorName && !item.colorName?.includes(colorName)) return false
+        if (styleName && !item.styleName?.includes(styleName)) return false
+        if (sizeStr && !item.sizeStr?.includes(sizeStr)) return false
+        return true
+      }
+      this.filteredData1 = this.tableData1.filter(filterFn)
+      this.filteredData2 = this.tableData2.filter(filterFn)
+    },
+    resetFilter() {
+      this.filterForm = {
+        productId: '',
+        colorName: '',
+        styleName: '',
+        sizeStr: ''
+      }
+      this.handleFilter()
     },
     getProductList() {
       return get('product/list').then(res => {
@@ -216,6 +305,27 @@ export default {
   font-size: 15px;
   font-weight: 600;
   color: #606266;
+}
+
+.filter-section {
+  background: #fafbfc;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  border: 1px solid #ebeef5;
+}
+
+.filter-form {
+  margin-bottom: -18px;
+}
+
+.filter-form :deep(.el-form-item) {
+  margin-bottom: 10px;
+}
+
+.filter-form :deep(.el-form-item__label) {
+  color: #606266;
+  font-weight: 500;
 }
 
 .price-input-wrapper {
