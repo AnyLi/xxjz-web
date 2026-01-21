@@ -70,10 +70,7 @@
               </div>
             </el-form-item>
 
-            <div class="remember-row">
-              <el-checkbox v-model="rememberMe">记住我</el-checkbox>
-            </div>
-
+      
             <el-form-item>
               <button
                 type="button"
@@ -91,7 +88,7 @@
           </el-form>
 
           <div class="login-footer">
-            <p>© 2024 小熊记账 · 安全登录</p>
+            <p>© 2026 小熊记账 · 安全登录</p>
           </div>
         </div>
       </div>
@@ -173,7 +170,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background: linear-gradient(135deg, #FDF6E3 0%, #F5EDDC 50%, #EDE4D3 100%);
   position: relative;
   overflow: hidden;
 }
@@ -192,7 +189,7 @@ export default {
 .circle {
   position: absolute;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+  background: linear-gradient(135deg, rgba(212, 165, 116, 0.15), rgba(200, 150, 100, 0.15));
   animation: float 6s ease-in-out infinite;
 }
 
@@ -245,7 +242,7 @@ export default {
 /* 左侧区域 */
 .login-left {
   flex: 1;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #D4A574 0%, #C9956C 100%);
   padding: 50px 40px;
   display: flex;
   flex-direction: column;
@@ -385,8 +382,8 @@ export default {
 
 .input-wrapper:focus-within {
   background: #fff;
-  border-color: #667eea;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  border-color: #FFB300;
+  box-shadow: 0 0 0 4px rgba(255, 179, 0, 0.1);
 }
 
 .input-icon {
@@ -400,7 +397,7 @@ export default {
 }
 
 .input-wrapper:focus-within .input-icon {
-  color: #667eea;
+  color: #FFB300;
 }
 
 .input-wrapper .el-input {
@@ -419,21 +416,11 @@ export default {
   right: 0;
 }
 
-/* 记住我 */
-.remember-row {
-  margin-bottom: 25px;
-}
-
-.remember-row ::v-deep .el-checkbox__label {
-  color: #888;
-  font-size: 13px;
-}
-
 /* 登录按钮 */
 .login-btn {
   width: 100%;
   height: 52px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #D4A574 0%, #C9956C 100%);
   border: none;
   border-radius: 12px;
   color: #fff;

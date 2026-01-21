@@ -1,9 +1,185 @@
 // 字典常量
-export const sizeList = ['L', 'XL', '2XL', '3XL', '4XL']
+export const baseSetting = {
+	hasPrintFee: {
+		vkey: 'hasPrintFee',
+		name: '印字费',
+		type: 'text',
+		key: 'printFee',
+		value: '0.25',
+		isPrice: true,
+		unit: '遍'
+	},
+	hasColor: {
+		vkey: 'hasColor',
+		name: '颜色/种类',
+		type: 'label',
+		key: 'color',
+		listKey: 'colorList',
+	},
+	hasPattern: {
+		vkey: 'hasPattern',
+		name: '款式',
+		type: 'label',
+		key: 'pattern',
+		listKey: 'styleList',
+	},
+	hasLightLevel: {
+		vkey: 'hasLightLevel',
+		name: '亮度',
+		type: 'label',
+		key: 'lightLevel',
+		listKey: 'lightList',
+	},
+	hasSize: {
+		vkey: 'hasSize',
+		name: '尺码',
+		type: 'label',
+		key: 'size',
+		listKey: 'sizeList',
+	},
+}
+
+export const styleList = ['布款', '网款']
+
+export const takeList = {
+	'1': '现货',
+	'2': '印制衣服'
+}
 
 export const lightList = ['高亮', '普亮', '中亮']
 
+export const colorList = [
+	'荧光黄',
+	'橘红',
+	'宝蓝',
+	'大红',
+	'金黄',
+	'黑色',
+	'橘黑',
+	'黄黑',
+	'蓝黑',
+	'白色',
+	'渔网',
+	'牛津布',
+	'空白',
+	'警察',
+	'交警',
+	'辅警',
+	"保安",
+	"交通执勤",
+	"执勤",
+	"交通",
+	"秩序维护",
+	"治安巡逻",
+	"交通劝导",
+	"护学岗",
+	'中国建筑',
+	'中国铁建',
+	'中国交建',
+	'中国中铁',
+	'安全员',
+	'多口袋安全员',
+	'双腰安全员',
+	'平安好车主',
+	'塔吊司机',
+	'塔吊指挥',
+	'起重吊装',
+	'双腰起重指挥',
+	'多兜红起重指挥',
+	'多兜橘起重指挥',
+	'多兜蓝起重指挥',
+	'安全监护',
+	'现场监护',
+	'安全监督',
+	'喝酒01',
+	'喝酒02',
+	'喝酒03',
+	'喝酒04',
+	'喝酒05',
+	'喝酒06',
+	'喝酒07',
+	'喝酒08',
+	'喝酒09',
+	'喝酒10',
+	'喝酒11',
+	'喝酒12',
+	'喝酒13',
+]
+
+// 1 前主标  2 后主标（换行 使用\n)  3 后主标下方（仅限于拼音区分） 4 后腰内容 5 多口袋右标/葫芦前上标
+export const textList = [
+	["保BAOAN安", "保安", "BAOAN"],
+	["执ZHIQIN勤", "执勤", "ZHIQIN"],
+	["交JIAOTONG通", "交通", "JIAOTONG"],
+	["交通执勤", "交通执勤"],
+	["秩序维护", "秩序维护"],
+	["治安巡逻", "治安巡逻"],
+	["交通劝导", "交通劝导"],
+	["护学岗", "护学岗"],
+	["安全员", "安全员"],
+	["起重指挥", "起重指挥"],
+	["安全监护", "安全监护"],
+	["现场监护", "现场监护"],
+	["安全监督", "安全监督"],
+	["工作负责人", "工作负责人"],
+	["小组负责人", "小组负责人"],
+	["专责监护人", "专责监护人"],
+	["吊车指挥", "吊车指挥"],
+	["滴滴代喝", "滴滴代喝"],
+	["滴滴代喝", "王牌吹瓶员,申请出战", "", "喝酒找我", "王牌吹瓶员"],
+]
+
+export const textObjList = {
+	"空白": [" ", " ", " "],
+	"保安": ["保BAOAN安", "保安", "BAOAN"],
+	"执勤": ["执ZHIQIN勤", "执勤", "ZHIQIN"],
+	"交通": ["交JIAOTONG通", "交通", "JIAOTONG"],
+	"交通执勤": ["交通执勤", "交通执勤"],
+	"秩序维护": ["秩序维护", "秩序维护"],
+	"治安巡逻": ["治安巡逻", "治安巡逻", "ZHIANXUNLUO"],
+	"交通劝导": ["交通劝导", "交通劝导"],
+	"护学岗": ["护学岗", "护学岗"],
+	"安全员": ["安全员", "安全员"],
+	"起重指挥": ["起重指挥", "起重指挥"],
+	"安全监护": ["安全监护", "安全监护"],
+	"现场监护": ["现场监护", "现场监护"],
+	"安全监督": ["安全监督", "安全监督"],
+	"工作负责人": ["工作负责人", "工作负责人"],
+	"小组负责人": ["小组负责人", "小组负责人"],
+	"专责监护人": ["专责监护人", "专责监护人"],
+	"吊车指挥": ["吊车指挥", "吊车指挥"],
+	"前后滴滴代喝": ["滴滴代喝", "滴滴代喝"],
+	"滴滴代喝王牌吹瓶员": ["滴滴代喝", "王牌吹瓶员,申请出战", "", "喝酒找我", "王牌吹瓶员"],
+}
+
+export const sizeList = ['L', 'XL', '2XL', '3XL', '4XL']
+
+export const mainTypeStr = {
+	1: '衣服',
+	2: '印字',
+	3: '推广',
+	4: '物料',
+	5: '其他',
+}
+
+// 店铺类型(1拼多多 2淘宝 3小红书 4抖音)
+export const storeTypeStr = {
+	1: '拼多多',
+	2: '淘宝',
+	3: '小红书',
+	4: '抖音',
+	5: '其他',
+}
+
 export default {
-  sizeList,
-  lightList
+	baseSetting,
+	styleList,
+	takeList,
+	lightList,
+	colorList,
+	textList,
+	textObjList,
+	sizeList,
+	mainTypeStr,
+	storeTypeStr,
 }
