@@ -7,9 +7,7 @@
           <span class="header-title">价格表</span>
         </div>
         <div class="header-right">
-          <el-button size="small" icon="el-icon-back" @click="$router.push('/')">
-            返回主页
-          </el-button>
+          <BackHomeButton in-header />
           <el-button type="primary" size="small" icon="el-icon-check" @click="submit">
             确认修改
           </el-button>
@@ -140,9 +138,11 @@
 <script>
 import { get, post } from '@/api/request'
 import { colorList, styleList, sizeList } from '@/utils/dict'
+import BackHomeButton from '@/components/BackHomeButton.vue'
 
 export default {
   name: 'Price',
+  components: { BackHomeButton },
   data() {
     return {
       tableData: [],

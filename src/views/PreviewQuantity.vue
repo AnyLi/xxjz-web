@@ -7,9 +7,7 @@
           <span class="header-title">库存预览</span>
         </div>
         <div class="header-right">
-          <el-button size="small" icon="el-icon-back" @click="$router.push('/')">
-            返回主页
-          </el-button>
+          <BackHomeButton in-header />
         </div>
       </div>
 
@@ -124,10 +122,43 @@
         </div>
       </div>
 
-      <!-- 加载中状态 -->
-      <div class="loading-wrapper" v-else>
-        <i class="el-icon-loading"></i>
-        <span>数据加载中...</span>
+      <!-- 骨架屏加载状态 -->
+      <div class="skeleton-wrapper" v-else>
+        <div class="skeleton-container">
+          <!-- 第一个面板骨架 -->
+          <div class="skeleton-panel" style="flex: 3;">
+            <el-skeleton :rows="8" animated>
+              <template slot="template">
+                <div class="skeleton-card">
+                  <el-skeleton-item variant="text" style="width: 30%; height: 20px; margin-bottom: 16px;" />
+                  <el-skeleton-item variant="rect" style="width: 100%; height: 300px;" />
+                </div>
+              </template>
+            </el-skeleton>
+          </div>
+          <!-- 第二个面板骨架 -->
+          <div class="skeleton-panel" style="flex: 1;">
+            <el-skeleton :rows="8" animated>
+              <template slot="template">
+                <div class="skeleton-card">
+                  <el-skeleton-item variant="text" style="width: 50%; height: 20px; margin-bottom: 16px;" />
+                  <el-skeleton-item variant="rect" style="width: 100%; height: 300px;" />
+                </div>
+              </template>
+            </el-skeleton>
+          </div>
+          <!-- 第三个面板骨架 -->
+          <div class="skeleton-panel" style="flex: 1;">
+            <el-skeleton :rows="8" animated>
+              <template slot="template">
+                <div class="skeleton-card">
+                  <el-skeleton-item variant="text" style="width: 50%; height: 20px; margin-bottom: 16px;" />
+                  <el-skeleton-item variant="rect" style="width: 100%; height: 300px;" />
+                </div>
+              </template>
+            </el-skeleton>
+          </div>
+        </div>
       </div>
     </el-card>
   </div>
@@ -137,9 +168,11 @@
 import { get } from '@/api/request'
 import { sizeList } from '@/utils/dict'
 import { ImagePreview } from 'vant'
+import BackHomeButton from '@/components/BackHomeButton.vue'
 
 export default {
   name: 'PreviewQuantity',
+  components: { BackHomeButton },
   data() {
     return {
       tableData1: [],
@@ -576,24 +609,25 @@ export default {
   color: #606266;
 }
 
-/* 加载状态 */
-.loading-wrapper {
+/* 骨架屏状态 */
+.skeleton-wrapper {
+  padding: 16px 0;
+}
+
+.skeleton-container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 0;
-  color: #909399;
+  gap: 16px;
 }
 
-.loading-wrapper i {
-  font-size: 32px;
-  margin-bottom: 12px;
-  color: #409eff;
+.skeleton-panel {
+  min-width: 0;
 }
 
-.loading-wrapper span {
-  font-size: 14px;
+.skeleton-card {
+  background: #fff;
+  border-radius: 6px;
+  padding: 16px;
+  border: 1px solid #ebeef5;
 }
 
 /* 表格斑马纹优化 */

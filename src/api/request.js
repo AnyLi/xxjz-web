@@ -5,6 +5,14 @@ import router from '@/router'
 export const baseURL = process.env.VUE_APP_API_BASE_URL
 export const staticURL = process.env.VUE_APP_STATIC_URL
 
+// 获取 URL 参数
+export function getUrlParam(name) {
+  const reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)')
+  const r = window.location.search.substr(1).match(reg)
+  if (r != null) return decodeURIComponent(r[2])
+  return null
+}
+
 const instance = axios.create({
   baseURL,
   timeout: 10000
