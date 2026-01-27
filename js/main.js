@@ -1,8 +1,9 @@
 
 const baseURL = 'https://api.xxjz.store/'
+const baseURL2 = 'https://api2.xxjz.store/'
 // const baseURL = 'http://192.168.1.17:8080/'
 const staticURL = 'https://anii-1303089700.cos.ap-chengdu.myqcloud.com/xxjz/'
-
+const xxjz2Path = ['setFsQuantity.html']
 let dot = location.href.includes('/html/')?'..':'.'
 // 配置需要加载的JS资源列表
 const resources = [

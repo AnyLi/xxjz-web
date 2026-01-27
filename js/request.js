@@ -1,5 +1,7 @@
+console.log('xxjz2Path ---',xxjz2Path)
+console.log('location ---',location)
 const instance = axios.create({
-    baseURL,
+    baseURL:xxjz2Path.includes(location.pathname.split('/').pop())?baseURL2:baseURL,
     timeout: 10000
 })
 instance.interceptors.request.use(
