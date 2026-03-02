@@ -35,6 +35,27 @@
               <el-button type="primary" icon="el-icon-document">
                 上传物流账单
               </el-button>
+            </el-upload><!-- 分隔线 -->
+            <el-divider direction="vertical"></el-divider>
+            <!-- 上传查询单号 -->
+            <el-upload
+              class="upload-xls-btn"
+              :action="baseURL + 'waybillSettlement/import3'"
+              :headers="uploadHeaders"
+              :data="uploadData"
+              :file-list="fileList3"
+              :before-upload="beforeUpload"
+              :on-success="handleSuccess"
+              :on-error="handleError"
+              :on-progress="handleProgress"
+              :on-remove="handleRemove3"
+              :limit="1"
+              :on-exceed="handleExceed"
+              accept=".xls,.xlsx"
+            >
+              <el-button type="success" icon="el-icon-search">
+                上传拦截费账单
+              </el-button>
             </el-upload>
 
             <!-- 分隔线 -->
@@ -184,6 +205,19 @@
             {{ scope.row.customerExpressFee ? scope.row.customerExpressFee.toFixed(2) : '0.00' }}
           </template>
         </el-table-column>
+        <!-- 临时调价费(元) -->
+        <el-table-column prop="temporaryAdjustmentFee" label="临时调价费(元)" width="140" align="right">
+          <template slot-scope="scope">
+            {{ scope.row.temporaryAdjustmentFee ? scope.row.temporaryAdjustmentFee.toFixed(2) : '0.00' }}
+          </template>
+        </el-table-column>
+
+        <!-- 客户运费 -->
+        <el-table-column prop="customerFreight" label="客户运费" width="140" align="right">
+          <template slot-scope="scope">
+            {{ scope.row.customerFreight ? scope.row.customerFreight.toFixed(2) : '0.00' }}
+          </template>
+        </el-table-column>
 
         <!-- 预付面单 -->
         <el-table-column prop="prepaidAmount" label="预付面单" width="100" align="right">
@@ -331,6 +365,18 @@
         </el-row>
         <el-row :gutter="20">
           <el-col :span="12">
+            <el-form-item label="临时调价费">
+              <el-input-number v-model="editForm.temporaryAdjustmentFee" :precision="2" :step="0.1" style="width: 100%" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="客户运费">
+              <el-input-number v-model="editForm.customerFreight" :precision="2" :step="0.1" style="width: 100%" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12">
             <el-form-item label="客户快递费">
               <el-input-number v-model="editForm.customerExpressFee" :precision="2" :step="0.1" style="width: 100%" />
             </el-form-item>
@@ -436,6 +482,7 @@ export default {
       total: 0,
       fileList: [],
       fileList2: [],
+      fileList3: [],
       uploadPercent: 0,
       uploadHeaders: {},
       uploadResult: {
@@ -524,6 +571,7 @@ export default {
         // 清空文件列表
         this.fileList = []
         this.fileList2 = []
+        this.fileList3 = []
         // 重新获取列表数据
         this.getList()
       } else {
@@ -664,7 +712,7 @@ export default {
         this.uploadData = {
           userId: user.id,
           userName: user.name,
-          flag: '1'
+          flag: ''
         }
       } else {
         this.selectedUserName = ''
@@ -688,6 +736,13 @@ export default {
     // 移除查询单号文件
     handleRemove2(file, fileList) {
       this.fileList2 = fileList
+      this.uploadPercent = 0
+      this.uploadResult.show = false
+      this.$message.info(`已移除文件 ${file.name}`)
+    },
+    // 移除查询单号文件
+    handleRemove3(file, fileList) {
+      this.fileList3 = fileList
       this.uploadPercent = 0
       this.uploadResult.show = false
       this.$message.info(`已移除文件 ${file.name}`)
