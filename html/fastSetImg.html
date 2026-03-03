@@ -532,6 +532,15 @@
 								v-if="chooseClothesList.length">（已选{{chooseClothesList.length}}）</span></div>
 					</template>
 					<div class="imgWrap">
+						<div class="imgList">
+							<div class="flexBtCenter">
+								<div class="title">上传图片</div>
+							</div>
+							<div class="imgListWrap flexWrap">
+								<van-uploader :preview-image="false" v-model="fileList" :after-read="afterRead"
+									multiple />
+							</div>
+						</div>
 						<div class="imgList" v-for="(item,index) in clothesList" :key="index">
 							<div class="flexBtCenter">
 								<div class="title">{{item.name}}</div>
@@ -698,7 +707,7 @@
 								<div class="shopInfo flexYCenter" v-if="shopInfo && shopInfo.id"
 									:class="showColor+'Back'">
 									<img :src="shopInfo.avatar" class="face" alt="">
-									<div class="showName">{{shopInfo.name}}</div>
+									<div class="showName">{{shopInfo.name || ''}}</div>
 								</div>
 								<div class="skuBorder" :class="showColor+'Border'">
 								</div>
@@ -724,7 +733,7 @@
 							v-if="isFace && captureName == ('captureArea'+index+i)">
 							<div class="shopInfo flexYCenter" :class="showColor+'Back'">
 								<img :src="shopInfo.avatar" class="face" alt="">
-								<div class="showName">{{shopInfo.name}}</div>
+								<div class="showName">{{shopInfo.name|| ''}}</div>
 							</div>
 							<div class="imgWrap whiteBack">
 								<img :src="showPreviewImg" crossOrigin="anonymous" class="showPreviewImg" alt="">
@@ -732,7 +741,7 @@
 							</div>
 							<div class="textFixedItem" v-for="(styleItem,styleI) in styleShowList"
 								:style="styleItem.style" :class="styleItem.class">
-								{{styleItem.text}}
+								{{styleItem.text|| ''}}
 							</div>
 							<div class="textFixedImgItem" v-if="hasGift">
 								<img :src="giftIcon" class="giftIcon" alt="">
@@ -763,6 +772,7 @@
 			new Vue({
 				el: '#app',
 				data: {
+					fileList: [],
 					loaded: false,
 					currentTime: new Date().toLocaleString(),
 					previewImg: {},
@@ -939,6 +949,27 @@
 					this.getMaterialList()
 				},
 				methods: {
+					afterRead(file) {
+						console.log('file ----', file)
+						setTimeout(() => {
+							this.fileList
+							console.log('file ----this.fileList', this.fileList)
+							console.log('file ----this.clothesList', this.clothesList)
+							if (this.clothesList[0].id == 0) {
+								this.clothesList[0].itemList.push({
+									imageUrl: file.content
+								})
+							} else {
+								this.clothesList.unshift({
+									id:0,
+									name:'自定义图片',
+									itemList: [{
+										imageUrl: file.content
+									}]
+								})
+							}
+						}, 500)
+					},
 					getInfo() {
 						get('dictList/listInfo').then(res => {
 							let data = res.data || {}
