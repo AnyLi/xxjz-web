@@ -749,7 +749,7 @@
 							</div>
 
 						</div>
-						<div class="skuNameText">{{copy(item,i,true)}}</div>
+						<div class="skuNameText">{{copy(item,i,true) || ''}}</div>
 						<div class="btns flexYCenter">
 							<div class="btn mainLightBack main" @click="capture('captureArea'+index+i,false,true)">生成封面
 							</div>
