@@ -277,6 +277,14 @@
 				width: 80%;
 				height: 80%;
 			}
+			.showPreviewImgShowNo {
+				position: absolute;
+				top: 0;
+				left: 0;
+				object-fit: contain;
+				width: 100%;
+				height: 100%;
+			}
 
 			.btns {
 				width: 100%;
@@ -487,7 +495,6 @@
 				font-size: 4vw;
 				font-weight: bold;
 			}
-
 			.clothesImg {
 				width: 100%;
 				object-fit: contain;
@@ -665,6 +672,10 @@
 				<div class="name">显示规格名称</div>
 				<van-switch v-model="showSkuText" />
 			</div>
+			<div class="formItem flexBtCenter">
+				<div class="name">是否完整显示封面图</div>
+				<van-switch v-model="isShowPad" />
+			</div>
 			<div class="formItem flexBtCenter" v-if="showSku">
 				<div class="name">规格名称在侧面展示</div>
 				<van-switch v-model="isSkuRight" />
@@ -737,7 +748,7 @@
 							</div>
 							<div class="imgWrap whiteBack">
 								<img :src="showPreviewImg" crossOrigin="anonymous" class="showPreviewImg" alt="">
-								<img :src="showPreviewImg" crossOrigin="anonymous" class="showPreviewImgShow" alt="">
+								<img :src="showPreviewImg" crossOrigin="anonymous" :class="isShowPad?'showPreviewImgShow':'showPreviewImgShowNo'" alt="">
 							</div>
 							<div class="textFixedItem" v-for="(styleItem,styleI) in styleShowList"
 								:style="styleItem.style" :class="styleItem.class">
@@ -794,6 +805,7 @@
 					hasGift: false,
 					useShopBack: false,
 					showSkuText: false,
+					isShowPad: true,
 					hasDIYText: true,
 					colorList: [{
 							label: '蓝色',
@@ -1015,7 +1027,7 @@
 						let st = this.skuTitleStart + i
 						let t = st + (st ? '-' : '') + text + this.skuTitleEnd
 						console.log('t ------', t)
-						if (isReturn) return t
+						if (isReturn) return t || ''
 						navigator.clipboard.writeText(t)
 							.then(() => vant.Toast('复制成功'))
 							.catch(err => console.error("复制失败", err));
