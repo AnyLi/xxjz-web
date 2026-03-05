@@ -277,6 +277,7 @@
 				width: 80%;
 				height: 80%;
 			}
+
 			.showPreviewImgShowNo {
 				position: absolute;
 				top: 0;
@@ -495,6 +496,7 @@
 				font-size: 4vw;
 				font-weight: bold;
 			}
+
 			.clothesImg {
 				width: 100%;
 				object-fit: contain;
@@ -748,7 +750,8 @@
 							</div>
 							<div class="imgWrap whiteBack">
 								<img :src="showPreviewImg" crossOrigin="anonymous" class="showPreviewImg" alt="">
-								<img :src="showPreviewImg" crossOrigin="anonymous" :class="isShowPad?'showPreviewImgShow':'showPreviewImgShowNo'" alt="">
+								<img :src="showPreviewImg" crossOrigin="anonymous"
+									:class="isShowPad?'showPreviewImgShow':'showPreviewImgShowNo'" alt="">
 							</div>
 							<div class="textFixedItem" v-for="(styleItem,styleI) in styleShowList"
 								:style="styleItem.style" :class="styleItem.class">
@@ -962,22 +965,30 @@
 				},
 				methods: {
 					afterRead(file) {
+						let list = []
 						console.log('file ----', file)
 						setTimeout(() => {
-							this.fileList
 							console.log('file ----this.fileList', this.fileList)
 							console.log('file ----this.clothesList', this.clothesList)
-							if (this.clothesList[0].id == 0) {
-								this.clothesList[0].itemList.push({
-									imageUrl: file.content
+							if (file.length) {
+								list = file.map(m => {
+									return {
+										imageUrl: m.content
+									}
 								})
 							} else {
+								list = [{
+									imageUrl: file.content
+								}]
+							}
+							if (this.clothesList[0].id == 0) {
+								this.clothesList[0].itemList = [...this.clothesList[0].itemList, ...list
+								]
+							} else {
 								this.clothesList.unshift({
-									id:0,
-									name:'自定义图片',
-									itemList: [{
-										imageUrl: file.content
-									}]
+									id: 0,
+									name: '自定义图片',
+									itemList: list
 								})
 							}
 						}, 500)
@@ -1022,12 +1033,13 @@
 					},
 					copy(item, i, isReturn) {
 						i = i == 0 ? '' : i
+						if (!item.styleName) return ''
 						let s = item.styleName || ''
 						let text = s ? item.colorName + s : item.colorName
 						let st = this.skuTitleStart + i
 						let t = st + (st ? '-' : '') + text + this.skuTitleEnd
 						console.log('t ------', t)
-						if (isReturn) return t || ''
+						if (isReturn) return t
 						navigator.clipboard.writeText(t)
 							.then(() => vant.Toast('复制成功'))
 							.catch(err => console.error("复制失败", err));
